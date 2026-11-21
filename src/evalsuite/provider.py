@@ -96,13 +96,11 @@ def _reported_usage(usage: Usage | None) -> tuple[int | None, int | None, Decima
     if output is None:
         return input_total, None, None, False
 
-    region = getattr(usage, "inference_geo", None)
     tier = getattr(usage, "service_tier", None)
     speed = getattr(usage, "speed", None)
     tools = getattr(usage, "server_tool_use", None)
     if (
-        region not in (None, "global", "us")
-        or tier not in (None, "standard")
+        tier not in (None, "standard")
         or speed not in (None, "standard")
         or (
             tools is not None
@@ -114,6 +112,7 @@ def _reported_usage(usage: Usage | None) -> tuple[int | None, int | None, Decima
     ):
         return input_total, output, None, False
 
+    # The global routing requested in request_body uses standard geography pricing.
     cost = cost_usd(input_total, output)
     if cache_read or cache_write:
         breakdown = getattr(usage, "cache_creation", None)
@@ -128,15 +127,8 @@ def _reported_usage(usage: Usage | None) -> tuple[int | None, int | None, Decima
         long_context_multiplier = 5 if input_total > 100_000 else 1
         cost += RATE_INPUT * long_context_multiplier * extra_cost_tokens / 1_000_000
 
-    if region == "us":
-        cost *= Decimal("1.10")
-
     standard_usage = (
-        input_total <= INPUT_LIMIT
-        and output <= OUTPUT_LIMIT
-        and not cache_read
-        and not cache_write
-        and region != "us"
+        input_total <= INPUT_LIMIT and output <= OUTPUT_LIMIT and not cache_read and not cache_write
     )
     return input_total, output, cost, standard_usage
 
@@ -248,7 +240,11 @@ class LiveProvider:
         model = getattr(message, "model", None)
         if isinstance(model, str) and model:
             result["model"] = model
-        input_count, output_count, cost, bounded = _reported_usage(getattr(message, "usage", None))
+        usage = getattr(message, "usage", None)
+        reported_geo = getattr(usage, "inference_geo", None)
+        if isinstance(reported_geo, str):
+            result["diagnostics"] = {"inference_geo": reported_geo}
+        input_count, output_count, cost, bounded = _reported_usage(usage)
         result["input_tokens"] = input_count
         result["output_tokens"] = output_count
         if model == MODEL and cost is not None:

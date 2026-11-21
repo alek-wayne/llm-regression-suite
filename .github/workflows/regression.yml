@@ -75,6 +75,20 @@ jobs:
           fi
           uv run --locked python -m evalsuite compare --mode fixture --scenario "$SCENARIO" \
             --out artifacts/ci "${args[@]}"
+      - name: Replay the saved comparison
+        if: ${{ !cancelled() && steps.python-dependencies.outcome == 'success' }}
+        run: |
+          uv run --locked python - <<'PY'
+          from pathlib import Path
+          from evalsuite.reporting import markdown
+          from evalsuite.runner import read_artifact
+
+          directory = Path("artifacts/ci")
+          comparison = read_artifact(directory / "comparison.json")
+          if (directory / "report.md").read_text(encoding="utf-8") != markdown(comparison):
+              raise ValueError("The Markdown report differs from its verified comparison.")
+          print(f"Verified {comparison.id} with verdict {comparison.summary.verdict}.")
+          PY
       - name: Show regression report
         if: always()
         shell: bash
@@ -112,8 +126,8 @@ jobs:
           uv run --locked python -m evalsuite demo
           npm ci --prefix web
           npm run build --prefix web
-      - name: Test console navigation in Chromium
+      - name: Test console navigation across browser engines
         working-directory: web
         run: |
-          npm exec -- playwright install --with-deps --only-shell chromium
+          npm exec -- playwright install --with-deps --only-shell chromium firefox webkit
           npm run test:navigation

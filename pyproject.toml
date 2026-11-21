@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "llm-regression-suite"
-version = "1.0.0"
+version = "1.0.1"
 description = "Paired evaluation and release gates for a policy-grounded support assistant"
 requires-python = ">=3.12,<3.15"
 dependencies = [

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { MouseEvent } from "react";
 import { ChangeBadge } from "./CaseDetail";
 import type { EvaluationCase, Trial } from "./data";
@@ -16,13 +16,15 @@ function matchingStatus(evaluationCase: EvaluationCase, status: string) {
 }
 
 function PassRate({ trials }: { trials: Trial[] }) {
-  if (!trials.length) return <span aria-label="No trials" className="muted">—</span>;
   const { passed, scored, errors } = summarizeTrials(trials);
+  const label = scored ? `${passed} of ${scored} scored trials passed`
+    : trials.length ? "No scored trials" : "No trials";
   return (
     <span className="pass-rate">
+      <span className="sr-only">{label}</span>
       {scored > 0
-        ? <span aria-label={`${passed} of ${scored} scored trials passed`}>{passed}<span className="rate-slash"> / </span>{scored}</span>
-        : <span className="muted" aria-label="No scored trials">—</span>}
+        ? <span aria-hidden="true">{passed}<span className="rate-slash"> / </span>{scored}</span>
+        : <span className="muted" aria-hidden="true">—</span>}
       {errors > 0 && <small>{errors} {errors === 1 ? "error" : "errors"}</small>}
     </span>
   );
@@ -39,6 +41,7 @@ export function CaseTable({ cases, selected, getLink, openCase }: CaseTableProps
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState("any");
   const [category, setCategory] = useState("");
+  const searchInput = useRef<HTMLInputElement>(null);
   const search = query.trim().toLowerCase();
   const categories = [...new Set(cases.map((item) => item.category))].sort((first, second) => first.localeCompare(second));
   const matches = cases.filter((item) => {
@@ -50,6 +53,7 @@ export function CaseTable({ cases, selected, getLink, openCase }: CaseTableProps
     setQuery("");
     setStatus("any");
     setCategory("");
+    searchInput.current?.focus();
   }
 
   return (
@@ -66,7 +70,7 @@ export function CaseTable({ cases, selected, getLink, openCase }: CaseTableProps
           <label className="search-field">
             <Icon name="search" />
             <span className="sr-only">Search cases</span>
-            <input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search cases" />
+            <input ref={searchInput} type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search cases" />
           </label>
           <label className="select-field">
             <span className="sr-only">Filter by category</span>

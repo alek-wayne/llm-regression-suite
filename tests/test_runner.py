@@ -113,6 +113,114 @@ def test_gate_checks_absolute_accuracy_latency_and_cost_independently(project):
     assert summarize([case], Policy()).verdict == "PASS"
 
 
+@pytest.mark.parametrize(
+    ("baseline_scores", "candidate_scores", "expected_accuracy", "verdict"),
+    [
+        ((19, 17), (19, 17), 0.90, "PASS"),
+        ((19, 17), (18, 17), 0.875, "FAIL"),
+        ((20, 20), (19, 19), 0.95, "PASS"),
+        ((20, 20), (19, 18), 0.925, "FAIL"),
+    ],
+)
+def test_accuracy_and_drop_thresholds_are_inclusive(
+    baseline_scores, candidate_scores, expected_accuracy, verdict
+):
+    cases = run_comparison(ROOT, case_ids=["BIL-04", "CMP-02"]).cases
+    for case, baseline, candidate in zip(cases, baseline_scores, candidate_scores, strict=True):
+        for arm, passes in (("baseline", baseline), ("candidate", candidate)):
+            trial = getattr(case, arm)[0]
+            scored = [
+                trial.model_copy(update={"index": i, "passed": i <= passes}) for i in range(1, 21)
+            ]
+            setattr(case, arm, scored)
+
+    summary = summarize(cases, Policy(min_accuracy=0.90, max_accuracy_drop=0.05))
+    assert summary.candidate_accuracy == expected_accuracy
+    assert summary.verdict == verdict
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "message"),
+    [
+        ("stop_reason", "max_tokens", "end_turn"),
+        ("stop_reason", "refusal", "end_turn"),
+        ("stop_reason", None, "end_turn"),
+        ("model", "different-model", "model"),
+    ],
+)
+def test_replay_rejects_contradictory_delivery_evidence(tmp_path, field, value, message):
+    document = run_comparison(ROOT, case_ids=["CMP-02"]).model_dump(mode="json")
+    document["cases"][0]["candidate"][0][field] = value
+    document["id"] = artifact_id(document)
+    path = tmp_path / "comparison.json"
+    path.write_text(json.dumps(document))
+    with pytest.raises(ValueError, match=message):
+        read_artifact(path)
+
+
+def test_invalid_rate_card_exits_inconclusive_without_repricing(tmp_path, capsys):
+    document = run_comparison(ROOT, case_ids=["CMP-02"]).model_dump(mode="json")
+    document["provenance"]["rate_card"] = []
+    document["id"] = artifact_id(document)
+    path = tmp_path / "comparison.json"
+    path.write_text(json.dumps(document))
+    assert main(["replay", str(path)]) == 2
+    assert "Evaluation unavailable" in capsys.readouterr().err
+
+
+def test_replay_preserves_legacy_multitrial_accuracy(project, tmp_path):
+    for arm in ("baseline", "candidate"):
+        path = project / f"fixtures/{arm}.json"
+        records = json.loads(path.read_text())
+        for case_id in ("CMP-01", "CMP-02"):
+            records[case_id] = [dict(records[case_id][0]) for _ in range(6)]
+        records["CMP-01"][0]["text"] = "{}"
+        path.write_text(json.dumps(records))
+    artifact = run_comparison(project, case_ids=["CMP-01", "CMP-02"], trials=6)
+    assert artifact.summary.candidate_accuracy == 11 / 12
+    document = artifact.model_dump(mode="json")
+    del document["provenance"]["metrics_version"]
+    # Version 1 averaged 5/6 and 6/6 as floats before serializing these fields.
+    legacy_accuracy = 0.9166666666666667
+    for arm in ("baseline", "candidate"):
+        document["summary"][f"{arm}_accuracy"] = legacy_accuracy
+        document["summary"]["arms"][arm]["accuracy"] = legacy_accuracy
+    document["id"] = artifact_id(document)
+    path = tmp_path / "legacy.json"
+    path.write_text(json.dumps(document))
+    assert read_artifact(path).summary.verdict == "PASS"
+    document["summary"]["arms"]["candidate"]["passed"] = 12
+    document["id"] = artifact_id(document)
+    path.write_text(json.dumps(document))
+    with pytest.raises(ValueError, match="Replayed verdict or metrics"):
+        read_artifact(path)
+
+
+@pytest.mark.parametrize("text", ["", "   "])
+def test_empty_frozen_output_is_a_replayable_quality_failure(project, tmp_path, text):
+    path = project / "fixtures/candidate.json"
+    records = json.loads(path.read_text())
+    records["CMP-02"][0]["text"] = text
+    path.write_text(json.dumps(records))
+    artifact = run_comparison(project, case_ids=["CMP-02"])
+    trial = artifact.cases[0].candidate[0]
+    assert trial.status == "invalid" and trial.cost_usd is not None
+    assert artifact.summary.verdict == "FAIL"
+    publish_report(artifact, tmp_path)
+    assert main(["replay", str(tmp_path / "comparison.json")]) == 1
+
+
+def test_live_validates_required_inputs_before_dispatch(project, monkeypatch):
+    (project / "uv.lock").unlink()
+
+    def unexpected_client(*args, **kwargs):
+        pytest.fail("No client should be created for an incomplete checkout")
+
+    monkeypatch.setattr("evalsuite.runner.LiveProvider", unexpected_client)
+    with pytest.raises(FileNotFoundError, match="uv.lock"):
+        run_comparison(project, mode="live", case_ids=["CMP-02"], budget=Decimal("0.01"))
+
+
 def test_live_schedule_counterbalances_order_and_records_every_trial(monkeypatch):
     calls = []
     baseline = (ROOT / "prompts/baseline.md").read_text()

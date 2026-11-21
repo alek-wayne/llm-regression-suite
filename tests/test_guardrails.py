@@ -83,8 +83,9 @@ def test_abstention_uses_only_the_prompts_fixed_fallback(cases):
     assert runtime_guard(case.passages, json.dumps(response)) == "withheld_unsupported_wording"
 
 
-def test_unapproved_quotes_do_not_count_as_approved_wording():
-    passage = Passage(id="policy", text='Unapproved reply: "Your refund is confirmed."')
+@pytest.mark.parametrize("label", ["Unapproved", "Not-approved", "Withdrawn approved"])
+def test_unapproved_quotes_do_not_count_as_approved_wording(label):
+    passage = Passage(id="policy", text=f'{label} reply: "Your refund is confirmed."')
     response = json.dumps(
         {
             "decision": "answer",
@@ -94,6 +95,27 @@ def test_unapproved_quotes_do_not_count_as_approved_wording():
         }
     )
     assert runtime_guard([passage], response) == "withheld_unsupported_wording"
+
+
+@pytest.mark.parametrize(
+    ("passage_id", "text_suffix", "outcome"),
+    [
+        ("cmp-mount", "", "served"),
+        ("cmp-mount", " ", "withheld_unsupported_wording"),
+        ("cmp-mount", " This approval has been withdrawn.", "withheld_unsupported_wording"),
+        ("cmp-cart", "", "withheld_unsupported_wording"),
+    ],
+    ids=["approved-source", "altered-text", "withdrawn-approval", "different-source-id"],
+)
+def test_approval_requires_the_exact_source_identity_and_revision(
+    cases, passage_id, text_suffix, outcome
+):
+    case = cases["CMP-02"]
+    source = next(passage for passage in case.passages if passage.id == "cmp-mount")
+    retrieved = Passage(id=passage_id, text=source.text + text_suffix)
+    response = json.loads(_recording("baseline", case.id))
+    response["evidence_ids"] = [passage_id]
+    assert runtime_guard([retrieved], json.dumps(response)) == outcome
 
 
 def test_contract_grading_keeps_value_and_citation_diagnostics(cases):

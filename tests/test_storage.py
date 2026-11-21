@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 @pytest.fixture
-def database(monkeypatch):
+def database_schema(monkeypatch):
     base = os.environ.get("TEST_DATABASE_URL")
     if not base:
         pytest.skip("Set TEST_DATABASE_URL for PostgreSQL integration tests")
@@ -28,10 +28,15 @@ def database(monkeypatch):
         url = make_conninfo(base, options=f"-c search_path={schema.as_string(admin)}")
         monkeypatch.setenv("DATABASE_URL", url)
         try:
-            migrate(url)
             yield url
         finally:
             admin.execute(sql.SQL("DROP SCHEMA {} CASCADE").format(schema))
+
+
+@pytest.fixture
+def database(database_schema):
+    migrate(database_schema)
+    return database_schema
 
 
 def test_postgres_atomic_concurrent_import_and_read_only_views(database, project):
@@ -93,3 +98,21 @@ def test_api_distinguishes_no_database_from_empty_history(monkeypatch):
     monkeypatch.delenv("DATABASE_URL", raising=False)
     with TestClient(create_app()) as client:
         assert client.get("/api/comparisons").status_code == 503
+
+
+def test_api_requests_migration_for_a_reachable_database_without_schema(database_schema):
+    history_path = "/api/comparisons"
+    missing_comparison = history_path + "/unknown"
+    missing_case = missing_comparison + "/cases/CMP-02"
+    with TestClient(create_app()) as client:
+        for path in (history_path, missing_comparison, missing_case):
+            response = client.get(path)
+            assert response.status_code == 503
+            assert response.json() == {"detail": "Comparison storage requires evalsuite migrate"}
+
+        migrate(database_schema)
+        history = client.get(history_path)
+        assert history.status_code == 200
+        assert history.json() == {"comparisons": []}
+        assert client.get(missing_comparison).status_code == 404
+        assert client.get(missing_case).status_code == 404

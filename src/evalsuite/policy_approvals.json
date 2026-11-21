@@ -1,0 +1,345 @@
+{
+  "acc-address": {
+    "443da39d6316d4b76265ac08a140af4bf0271e097f04f44c5cb647a420c98fa1": {
+      "answer": [
+        "An address change after label printing requires a shipment interception request."
+      ]
+    }
+  },
+  "acc-export": {
+    "fdccc07e8d0edda832800a34a3f553b6d191391c328b33eecdb51ac853cc3270": {
+      "answer": [
+        "The workspace owner can export the full archive."
+      ]
+    }
+  },
+  "acc-link": {
+    "49d8e370852a735088d04e5207c8b2083648ba4a80119b64b5ace421c7ef8f4b": {
+      "answer": [
+        "Your export link has expired and you can request a new one."
+      ]
+    }
+  },
+  "acc-login": {
+    "87e0d805042e7420ce03f1793936a7c5867de991ecdb52082f37c7a25cb58dd6": {
+      "clarify": [
+        "Are you signing in to a personal account or a company-managed workspace?"
+      ]
+    }
+  },
+  "bil-capture": {
+    "989dcbf7378a56fc23318a228219f5eb2df8050209f84bef8263d59791a7b905": {
+      "answer": [
+        "Two settled charges for one order can be reviewed."
+      ]
+    }
+  },
+  "bil-hold": {
+    "899f567f1de2935e8842108fb319d04e8d7038e622141f91f0fb52f203bfe761": {
+      "answer": [
+        "The pending entry is an authorization hold."
+      ]
+    }
+  },
+  "bil-invoice": {
+    "ae5727f34dcd72df73b95f7020255b5376f4c80af7e3311e3fb8ff53bbdb8ec2": {
+      "answer": [
+        "The invoice can be emailed to the workspace billing contact."
+      ]
+    }
+  },
+  "bil-spring-30": {
+    "1a6d4c905a2a552deeae657e6070a5767be395b9f1c6777e99f426a2bb5b3400": {
+      "answer": [
+        "Your Spring Courtesy Credit expires 30 days after issue."
+      ]
+    }
+  },
+  "bil-spring-45": {
+    "834c1eb375b2d0a6955d42f2fd099e68ec4eea9f2c110e892a5d5088f0a3d7a3": {
+      "answer": [
+        "Your Spring Courtesy Credit expires 45 days after issue."
+      ]
+    }
+  },
+  "clm-damage": {
+    "93386a5260d7803e730973c41675ba9f811eb85325f7026a71890a3f461bb17c": {
+      "answer": [
+        "You can still open a parcel damage report."
+      ]
+    }
+  },
+  "clm-door": {
+    "a34879b4601028afe09dfaf9b822f99e44865b067428beb5ada2c7d523c6cb3f": {
+      "answer": [
+        "Support can start a doorstep delivery trace."
+      ]
+    }
+  },
+  "clm-form": {
+    "af832d319ec5b3f42d4646ce9f33c43bf3256df0096fe8f985f7507fc5aa65f4": {
+      "answer": [
+        "You have the order number and both photos needed to open a damage claim."
+      ]
+    }
+  },
+  "clm-locker": {
+    "e53b09f0e07eb205550d3cb16d98da1fbf6119f0bbde91259f5277e1961e0cf6": {
+      "answer": [
+        "Support can check the missing locker pickup code."
+      ]
+    }
+  },
+  "cmp-cart": {
+    "2aea6a17b1a1d12ce91ca1b0d155c5a61194a6e8b5e681dbb7bc775814db01d9": {
+      "answer": [
+        "Your Cart Display 18 supports the Plate C tabletop mount."
+      ]
+    }
+  },
+  "cmp-dock": {
+    "b1f5caeb3eb74e97c171d16e57d87416fee8623e35481172c02797bd88109af0": {
+      "answer": [
+        "Dock Two Revision 2 supports Board 5."
+      ]
+    }
+  },
+  "cmp-mount": {
+    "a1a925e2670655cbaeb703fbd3ae6114078f71091a0619b932fc87c04caeea4a": {
+      "answer": [
+        "Your Desk Display 18 supports the Plate C tabletop mount."
+      ]
+    }
+  },
+  "cmp-suffix": {
+    "6b92a347645457f2ba5468365de743508819c2ab15fd3c7d3c4539cef6bcc488": {
+      "clarify": [
+        "What suffix is printed after H100 on the headset?"
+      ]
+    }
+  },
+  "doc-braille-after": {
+    "3e214737cfc5754630c96cfa411e002278f9c6c4f953fcda0a0c96b7d2dae859": {
+      "answer": [
+        "New requests for a Braille copy of Guide 200 go on the waitlist."
+      ]
+    }
+  },
+  "doc-braille-pilot": {
+    "8aaccee90a524570a2ee69553cc8df75ef4285b4c9361a0bb907ff3dcce09090": {
+      "answer": [
+        "You can request a Braille copy of Guide 200 during the pilot."
+      ]
+    }
+  },
+  "doc-guide-current": {
+    "4390bd1a190ea884f0311dc9bb13505385a2a100af38778ff6499ec9935f81e6": {
+      "answer": [
+        "The current Guide 300 describes each image in text."
+      ]
+    }
+  },
+  "doc-large": {
+    "fd770634719cc81be91ace91a66d63054023083794986603db830a81d3ebaf3f": {
+      "answer": [
+        "You can download the Guide 200 as a large-print PDF."
+      ]
+    }
+  },
+  "pck-cold": {
+    "4f143b6a4a6bff2e8aa2fb68205e870ca66e98b9829f38ea8c9d73ea37a7dec7": {
+      "answer": [
+        "The pickup window for your refrigerated groceries has ended."
+      ]
+    }
+  },
+  "pck-hold": {
+    "c9967fd2c970eeb879696774426e78e030cf878d0bac3dde08ee3ab4cdc31c4f": {
+      "answer": [
+        "Your pickup order is still being held."
+      ]
+    }
+  },
+  "pck-proxy": {
+    "542052f0230b9a8df4f39878f7d117b80eb06d0a27807b246d923242f86ed187": {
+      "answer": [
+        "Your named alternate can pick up the order with matching photo ID."
+      ]
+    }
+  },
+  "rep-dock": {
+    "1572866374560d4762d2f2307230be001f4d1e00897cc6c0120d83ab0b7b4be2": {
+      "clarify": [
+        "Does the label on your Dock One say Revision A or Revision B?"
+      ]
+    }
+  },
+  "rep-estimate": {
+    "d03e3df308c325d4a1c7334448096c55d6e0d97515505bf7b19cf2bb60d26cca": {
+      "answer": [
+        "The service center needs to issue a new estimate before payment."
+      ]
+    }
+  },
+  "rep-loaner": {
+    "ae4bd92fa2ebee8196bd69efdd7e68fb87bb98c82efb5e51a3584c0308db3cb1": {
+      "answer": [
+        "A loaner display is unavailable for a standard repair."
+      ]
+    }
+  },
+  "rep-walkin": {
+    "57848fde20f775f67cf60419230ed662d7daf95c358b6e434fabb115a1684e32": {
+      "answer": [
+        "Walk-in repairs are handled in check-in order."
+      ]
+    }
+  },
+  "ret-gift": {
+    "072f4a00443b825330b0afe3badf9ded8a59d6e758a31d2754241521fc9b4bb8": {
+      "answer": [
+        "A gift receipt return can be issued as store credit."
+      ]
+    }
+  },
+  "ret-outlet": {
+    "a1cd68311f252985e213388972d09e73d877608d49a64d756cb43de8bdb3efe6": {
+      "answer": [
+        "Final Sale Outlet orders cannot be returned for a change of mind."
+      ]
+    }
+  },
+  "ret-payment": {
+    "344186415de93b05ee78f44b6a1db2f8e33642bd9567c9381793bc34b8095a3e": {
+      "answer": [
+        "An eligible return is refunded to the original payment method."
+      ]
+    }
+  },
+  "ret-sealed": {
+    "447defea16296864dabe48c1fc3719ccac725d5038d8ce07fe95c605e9899dde": {
+      "clarify": [
+        "Is the original hygiene seal still intact?"
+      ]
+    }
+  },
+  "ret-standard": {
+    "f44aff6beb86df7544734c533b7a94ff10da0067b66e43872bc6ceafe656f5d5": {
+      "answer": [
+        "You are still within the 30-day return window."
+      ]
+    }
+  },
+  "rwd-convert": {
+    "40e8d3e8c6c4589ece6c1072c4ba29ff16b2bdd17750f5c9c9bbf149630acda7": {
+      "answer": [
+        "As a Premier member, you can redeem 500 points for a $10 voucher."
+      ]
+    }
+  },
+  "rwd-expiry": {
+    "021b35a5e47642bc959c3f9dfdd744a45a590cc608f22c9f37dbf991a88697ae": {
+      "answer": [
+        "Those rewards points have expired."
+      ]
+    }
+  },
+  "rwd-gift": {
+    "aa507c4e232718266f535ecc1469f6dc8486de02372d1c95f967b260d6451bb0": {
+      "answer": [
+        "Buying a gift certificate does not earn points."
+      ]
+    }
+  },
+  "rwd-partner": {
+    "1406c3090dda854e911a19fbd53c3d42459a4b3fe41ffe403a9c59588e8690a9": {
+      "answer": [
+        "The participating marketplace purchase earns base points."
+      ]
+    }
+  },
+  "shp-courier": {
+    "ae1f9dadb11f0b64e7562f425b4aa6eeae2310f7c2ecb43e2d91e06d1203c652": {
+      "answer": [
+        "Local courier delivery is unavailable for that ZIP code."
+      ]
+    }
+  },
+  "shp-express": {
+    "ba63ab9b9dbfc2ac9bf3ec70c2b580742b453cf9d6dd38d26870d6379c81c33f": {
+      "answer": [
+        "Your express order will dispatch the next business day."
+      ]
+    }
+  },
+  "shp-military": {
+    "e289d3f0d542e6fc5bb082ae70dd482cf1e88b35e432b101fb72da482c9a163d": {
+      "answer": [
+        "Military postal addresses ship by Postal Economy."
+      ]
+    }
+  },
+  "sub-cancel": {
+    "66f0103c65f6745c25bce04c4105bb46bdaff0483fff9177989f68846a22ba9b": {
+      "answer": [
+        "Your access continues until the current subscription expires."
+      ]
+    }
+  },
+  "sub-current": {
+    "117a373ccea65c3c8ee906d6744d7ac8545d9efb161831807e114e360ed655da": {
+      "answer": [
+        "Your annual plan includes 75 GB."
+      ]
+    }
+  },
+  "sub-monthly": {
+    "d8782c9b8d5a6504431b86ba5ff48c7ef2eb380e7bdba09b16540b99208800be": {
+      "answer": [
+        "Your Monthly plan can be paused for up to one month."
+      ]
+    }
+  },
+  "sub-original": {
+    "225b87aae0ca6a02eb9ff9a72747ee344fd5ba3aab3c604a2851c98a60f42e50": {
+      "answer": [
+        "Your annual plan keeps 100 GB at this renewal."
+      ]
+    }
+  },
+  "sub-renewal": {
+    "34e439b19c13bd3e3ab9f598c0cb1c1e12c47b19c08f0218a8022115ea06b4af": {
+      "clarify": [
+        "What date did the most recent renewal charge post?"
+      ]
+    }
+  },
+  "sub-seasonal": {
+    "77f6da81d97b776b5ec5bd960c3ca6467ba285c256acc46800c927385ff30341": {
+      "answer": [
+        "Your Annual Seasonal plan can use its three-month pause."
+      ]
+    }
+  },
+  "war-damage": {
+    "ad678daa42ef7ba90e871f17e97b0a941a0f5ffa08e2bd11f7eca1728dfb3c6d": {
+      "answer": [
+        "A screen cracked by a drop is outside the manufacturer defect warranty."
+      ]
+    }
+  },
+  "war-plan": {
+    "88250271199ecaf0ef326839ac62f2f2d0b1cf99ff70be195546240de305224b": {
+      "answer": [
+        "Your registered Elite plan provides 36 months of manufacturer defect coverage."
+      ]
+    }
+  },
+  "war-refurb": {
+    "2384b23fc8b8ce79c6c64c456d67f30cc96052f6615c53106cd91785fe753179": {
+      "answer": [
+        "Your refurbished keyboard is still within its 90-day hardware warranty."
+      ]
+    }
+  }
+}

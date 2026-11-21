@@ -8,6 +8,8 @@ from statistics import fmean
 
 from .evidence import ARMS, Arm, CaseResult, Policy, Summary, Trial, money
 
+METRICS_VERSION = 2
+
 
 def percentile(values: list[float], quantile: float) -> float | None:
     if not values:
@@ -46,13 +48,15 @@ def arm_metrics(cases: list[CaseResult], arm: Arm) -> dict:
         for assertion in t.assertions:
             checks[assertion.name] += int(assertion.passed)
     complete = len(trials) == len(delivered)
+    passed = sum(t.passed for t in trials)
     return {
         "scheduled": len(trials),
         "delivered": len(delivered),
         "errors": len(trials) - len(delivered),
         "invalid": sum(t.status == "invalid" for t in trials),
-        "passed": sum(t.passed for t in trials),
-        "accuracy": fmean(fmean(t.passed for t in group) for group in groups) if complete else None,
+        "passed": passed,
+        # Every case has the same scheduled repetitions in a paired comparison.
+        "accuracy": passed / len(trials) if complete else None,
         "all_trials_passed_cases": sum(all(t.passed for t in group) for group in groups),
         "assertions_passed": dict(sorted(checks.items())),
         "withheld": sum(t.guardrail != "served" for t in delivered),
@@ -70,8 +74,18 @@ def arm_metrics(cases: list[CaseResult], arm: Arm) -> dict:
     }
 
 
-def summarize(cases: list[CaseResult], policy: Policy) -> Summary:
+def summarize(
+    cases: list[CaseResult], policy: Policy, *, metrics_version: int = METRICS_VERSION
+) -> Summary:
+    if type(metrics_version) is not int or metrics_version not in (1, METRICS_VERSION):
+        raise ValueError("Unsupported comparison metrics version")
     measures = {arm: arm_metrics(cases, arm) for arm in ARMS}
+    if metrics_version == 1:
+        # Earlier reports serialized the mean of floating-point case means.
+        # Keep their exact display values while checking gate thresholds against counts.
+        for arm, row in measures.items():
+            if row["accuracy"] is not None:
+                row["accuracy"] = fmean(fmean(t.passed for t in getattr(c, arm)) for c in cases)
     baseline, candidate = (measures[arm] for arm in ARMS)
     pairs, losses, wins = [], [], []
     for case in cases:
@@ -84,7 +98,12 @@ def summarize(cases: list[CaseResult], policy: Policy) -> Summary:
         elif change > 0:
             wins.append(case.id)
 
-    delta = round(fmean(change for _, change in pairs), 10) if len(pairs) == len(cases) else None
+    lost_trials = baseline["passed"] - candidate["passed"]
+    scheduled = candidate["scheduled"]
+    delta = None
+    if len(pairs) == len(cases):
+        change = fmean(v for _, v in pairs) if metrics_version == 1 else -lost_trials / scheduled
+        delta = round(change, 10)
     missing = []
     for arm, row in measures.items():
         if row["errors"]:
@@ -98,11 +117,14 @@ def summarize(cases: list[CaseResult], policy: Policy) -> Summary:
         if row["latency_samples"] < row["delivered"]:
             missing.append(f"{arm.capitalize()} is missing delivered response timing.")
     failures = []
-    if candidate["accuracy"] is not None and candidate["accuracy"] < policy.min_accuracy:
+    # Compare counts at the configured thresholds; round only for presentation.
+    if candidate["accuracy"] is not None and candidate["passed"] < scheduled * Decimal(
+        str(policy.min_accuracy)
+    ):
         failures.append(
             f"Candidate accuracy {candidate['accuracy']:.1%} fell below {policy.min_accuracy:.1%}."
         )
-    if delta is not None and delta < -policy.max_accuracy_drop:
+    if delta is not None and lost_trials > scheduled * Decimal(str(policy.max_accuracy_drop)):
         failures.append(
             f"Accuracy dropped {-delta * 100:.2f} pp, exceeding the {100 * policy.max_accuracy_drop:g} pp allowance."
         )
