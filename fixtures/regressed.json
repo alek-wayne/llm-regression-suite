@@ -1,0 +1,66 @@
+{
+  "RET-04": [
+    {
+      "text": "{\"decision\":\"answer\",\"value\":\"ORIGINAL_PAYMENT\",\"evidence_ids\":[\"ret-payment\"],\"customer_response\":\"An eligible return is refunded to the original payment method.\"}",
+      "input_tokens": 472,
+      "output_tokens": 45,
+      "latency_ms": 638
+    }
+  ],
+  "SHP-03": [
+    {
+      "text": "{\"decision\":\"answer\",\"value\":\"GUARANTEED_10_AM\",\"evidence_ids\":[\"shp-estimate\"],\"customer_response\":\"Express delivery is guaranteed by 10 a.m.\"}",
+      "input_tokens": 545,
+      "output_tokens": 36,
+      "latency_ms": 869
+    }
+  ],
+  "BIL-02": [
+    {
+      "text": "{\"decision\":\"answer\",\"value\":\"EMAIL_BILLING_CONTACT\",\"evidence_ids\":[\"bil-invoice\"],\"customer_response\":\"The invoice can be emailed to the workspace billing contact.\"}",
+      "input_tokens": 577,
+      "output_tokens": 47,
+      "latency_ms": 1047
+    }
+  ],
+  "BIL-03": [
+    {
+      "text": "{\"decision\":\"answer\",\"value\":\"CREDIT_45_DAYS\",\"evidence_ids\":[\"bil-spring-45\"],\"customer_response\":\"Your Spring Courtesy Credit expires 45 days after issue.\"}",
+      "input_tokens": 648,
+      "output_tokens": 42,
+      "latency_ms": 1309
+    }
+  ],
+  "BIL-04": [
+    {
+      "text": "{\"decision\":\"answer\",\"value\":\"DUPLICATE_REVIEW\",\"evidence_ids\":[\"bil-capture\"],\"customer_response\":\"Two settled charges for one order can be reviewed. We'll refund the second charge today.\"}",
+      "input_tokens": 522,
+      "output_tokens": 48,
+      "latency_ms": 1408
+    }
+  ],
+  "REP-02": [
+    {
+      "text": "{\"decision\":\"clarify\",\"value\":null,\"evidence_ids\":[\"rep-dock\"],\"customer_response\":\"Does the label on your Dock One say Revision A or Revision B?\"",
+      "input_tokens": 541,
+      "output_tokens": 42,
+      "latency_ms": 1662
+    }
+  ],
+  "CMP-02": [
+    {
+      "text": "{\"decision\":\"answer\",\"value\":\"PLATE_C_SUPPORTED\",\"evidence_ids\":[\"cmp-cart\"],\"customer_response\":\"Your Desk Display 18 supports the Plate C tabletop mount. It also supports every other Plate C accessory.\"}",
+      "input_tokens": 620,
+      "output_tokens": 56,
+      "latency_ms": 1861
+    }
+  ],
+  "PCK-04": [
+    {
+      "text": "{\"decision\":\"answer\",\"value\":\"PICKUP_STILL_HELD\",\"evidence_ids\":[\"pck-hold\"],\"customer_response\":\"Your pickup order is still being held.\"}",
+      "input_tokens": 681,
+      "output_tokens": 39,
+      "latency_ms": 668
+    }
+  ]
+}

@@ -1,0 +1,936 @@
+{
+  "passages": {
+    "ret-standard": "Online orders / standard returns. A physical item from the main catalog may be returned through calendar day 30 after delivery, counted from day 0 on the delivery date. Return outcome: value RETURN_WINDOW_OPEN; approved reply: \"You are still within the 30-day return window.\"",
+    "ret-outlet": "Outlet / final sale. Certified Outlet orders labeled Final Sale cannot be returned for a change of mind. This exception overrides the standard online return window. Outcome: value FINAL_SALE; approved reply: \"Final Sale Outlet orders cannot be returned for a change of mind.\"",
+    "ret-sealed": "Personal audio / hygiene seal. Earbuds must have their original hygiene seal intact to be evaluated for a preference return. If the customer has not stated whether the seal is intact, approved question: \"Is the original hygiene seal still intact?\"",
+    "ret-gift": "Gift receipts / returns. A gift recipient with a gift receipt may receive store credit only. The payment-method refund rule for the original purchaser does not apply to a gift recipient. Outcome: value GIFT_STORE_CREDIT; approved reply: \"A gift receipt return can be issued as store credit.\"",
+    "ret-payment": "Original purchaser / returns. The purchaser of an eligible standard return receives a refund to the original payment method. Outcome: value ORIGINAL_PAYMENT; approved reply: \"An eligible return is refunded to the original payment method.\"",
+    "shp-express": "Express / dispatch cutoff. On business days, payment confirmed before 12:00 local fulfillment time qualifies for same-day express dispatch. At 12:00 or later the order dispatches the next business day. Cutoff outcome: value NEXT_BUSINESS_DAY; approved reply: \"Your express order will dispatch the next business day.\"",
+    "shp-courier": "Local courier / coverage. Coverage depends on the delivery ZIP code, not the fulfillment location. The 74012 and 74105 delivery ZIP codes qualify. For a delivery ZIP outside this list, use value COURIER_UNAVAILABLE and approved reply: \"Local courier delivery is unavailable for that ZIP code.\"",
+    "shp-warehouse": "Warehouse routing. Our fulfillment center for local courier orders is in ZIP 74105. This is the pickup location for the courier.",
+    "shp-estimate": "Express / transit estimates. The carrier normally delivers within one business day after dispatch. This is an estimate, and the service described here does not specify arrival by hour.",
+    "shp-military": "Military postal addresses. Orders addressed to an APO, FPO, or DPO ship via Postal Economy only. This destination rule overrides the checkout express option. Outcome: value POSTAL_ECONOMY; approved reply: \"Military postal addresses ship by Postal Economy.\"",
+    "shp-options": "Checkout / method listing. The online checkout normally displays Standard and Express shipping methods for domestic street addresses.",
+    "bil-hold": "Card payment / pending authorizations. A display marked pending with no capture is an authorization hold. It is not a posted charge. Outcome: value AUTHORIZATION_HOLD; approved reply: \"The pending entry is an authorization hold.\"",
+    "bil-capture": "Card payment / duplicate captures. For two settled card entries with distinct capture IDs for one order, support opens a duplicate charge review; the review does not itself authorize a refund. Outcome: value DUPLICATE_REVIEW; approved reply: \"Two settled charges for one order can be reviewed.\"",
+    "bil-invoice": "Company invoices / delivery. Invoice PDFs are available by email and may be sent only to the workspace billing contact. Standard outcome: value EMAIL_BILLING_CONTACT; approved reply: \"The invoice can be emailed to the workspace billing contact.\"",
+    "bil-roles": "Workspace / billing contact assignments. In the Business plan, the person listed as finance lead is the workspace billing contact. Viewer and administrator roles alone do not make someone the billing contact.",
+    "bil-spring-30": "Spring Courtesy Credit / approved FAQ. Spring Courtesy Credits expire 30 calendar days after issue. Outcome: value CREDIT_30_DAYS; approved reply: \"Your Spring Courtesy Credit expires 30 days after issue.\" Status: active, policy priority standard, effective March 1.",
+    "bil-spring-45": "Spring Courtesy Credit / approved billing guide. Spring Courtesy Credits expire 45 calendar days after issue. Outcome: value CREDIT_45_DAYS; approved reply: \"Your Spring Courtesy Credit expires 45 days after issue.\" Status: active, policy priority standard, effective March 1.",
+    "sub-original": "Annual plan / storage entitlement. Annual plans started before July 1, 2026 keep 100 GB at their first renewal under the grandfathering clause. Outcome: value STORAGE_100_GB; approved reply: \"Your annual plan keeps 100 GB at this renewal.\"",
+    "sub-current": "Annual plan / storage entitlement, effective July 1, 2026. New Annual plans started on or after this date receive 75 GB. Outcome: value STORAGE_75_GB; approved reply: \"Your annual plan includes 75 GB.\"",
+    "sub-monthly": "Monthly plan / pauses. A Monthly member may pause service for up to one month. Outcome: value MONTHLY_PAUSE; approved reply: \"Your Monthly plan can be paused for up to one month.\"",
+    "sub-seasonal": "Annual plan / seasonal pause. Ordinary Annual plans do not allow pauses. Annual Seasonal plans include one unused seasonal pause each year for up to three months. Outcome for an unused Annual Seasonal pause: value SEASONAL_PAUSE; approved reply: \"Your Annual Seasonal plan can use its three-month pause.\"",
+    "sub-renewal": "Annual plan / renewal disputes. Eligibility for a renewal reversal depends on the most recent renewal charge date. If that date is not given, approved question: \"What date did the most recent renewal charge post?\"",
+    "sub-cancel": "Annual plans / voluntary cancellation. Canceling an Annual plan turns off auto-renewal while access continues to the next expiration. The cancellation rule itself does not determine whether a previous payment will be refunded. Outcome: value ENDS_AT_EXPIRATION; approved reply: \"Your access continues until the current subscription expires.\"",
+    "war-plan": "Elite coverage / registration. An Elite protection plan registered within 60 calendar days of purchase adds 12 months to the standard manufacturer defect term. Use the standard term to determine total coverage. The total term for an eligible 24-month product has value WARRANTY_36_MONTHS and approved reply: \"Your registered Elite plan provides 36 months of manufacturer defect coverage.\"",
+    "war-standard": "Manufacturer warranty / tablets. Full-size new Field tablets receive a 24-month manufacturer defect warranty. This section applies to the tablet itself; it does not define coverage for chargers or other accessories.",
+    "war-damage": "Manufacturer warranty / exclusion. Accidental damage, including cracked screens from drops, is excluded even during an active manufacturer defect warranty. This policy concerns manufacturer coverage and does not address separately purchased accident plans. Outcome: value ACCIDENTAL_EXCLUDED; approved reply: \"A screen cracked by a drop is outside the manufacturer defect warranty.\"",
+    "war-refurb": "Outlet refurbished products / limited hardware warranty. Outlet refurbished keyboards have a 90-calendar-day hardware warranty from delivery, with claims accepted through day 90. This warranty replaces the ordinary new-keyboard warranty. For a hardware claim within 90 days use value REFURB_WARRANTY_OPEN; approved reply: \"Your refurbished keyboard is still within its 90-day hardware warranty.\"",
+    "war-keyboard": "New keyboards / limited hardware warranty. An otherwise eligible new keyboard has a one-year hardware warranty. This applies to new units sold through the main catalog.",
+    "rep-estimate": "Mail-in repairs / estimate validity. An estimate is valid through 14 calendar days after issue. After that, the service center must issue a new estimate before accepting payment. Outcome: value NEW_ESTIMATE_REQUIRED; approved reply: \"The service center needs to issue a new estimate before payment.\"",
+    "rep-dock": "Remote repair / Dock One. Revision A requires an in-person appointment; Revision B can be diagnosed remotely. If the revision is not known, approved question: \"Does the label on your Dock One say Revision A or Revision B?\"",
+    "rep-loaner": "Repairs / loan units. A complimentary display loaner is reserved for eligible display models under a safety recall. For a standard display repair outside the recall, use value NO_LOANER and approved reply: \"A loaner display is unavailable for a standard repair.\"",
+    "rep-printer": "Repairs / printer agreement. Covered service-contract printers may be eligible for a replacement print unit during repairs. That program only covers printers.",
+    "rep-walkin": "In-store repair / queues. Walk-in repairs are handled in check-in order, including repairs for Plus members. Outcome: value CHECK_IN_ORDER; approved reply: \"Walk-in repairs are handled in check-in order.\"",
+    "rep-mail": "Mail-in repair / queues. Plus members have a priority queue for repairs shipped to the national service center.",
+    "acc-export": "Managed workspaces / archive export. Only the workspace owner may export the full workspace archive. A workspace administrator who is not the owner must ask the owner to export it. Outcome: value OWNER_MUST_EXPORT; approved reply: \"The workspace owner can export the full archive.\"",
+    "acc-personal": "Personal accounts / export. The account holder can export their own profile and activity history through Settings. This section applies to personal accounts, not managed workspaces.",
+    "acc-link": "Account exports / download links. An export link is valid for exactly 24 hours from issuance. At hour 24 or later, request a new link. Outcome: value REQUEST_NEW_LINK; approved reply: \"Your export link has expired and you can request a new one.\"",
+    "acc-address": "Orders / shipping address edits. Edits are available while the order is marked Queued. Once the label is printed, support must use the shipment interception workflow. Outcome after label printing: value INTERCEPT_REQUIRED; approved reply: \"An address change after label printing requires a shipment interception request.\"",
+    "acc-login": "Mobile app / sign-in. Personal accounts and company-managed workspaces use different sign-in screens. If the customer has not said which account type they have, approved question: \"Are you signing in to a personal account or a company-managed workspace?\"",
+    "clm-damage": "Parcel damage / reporting window. The initial damage report must be filed by the end of calendar day 7 after carrier delivery. Day 7 is eligible. Outcome: value DAMAGE_WINDOW_OPEN; approved reply: \"You can still open a parcel damage report.\"",
+    "clm-form": "Parcel damage / claim form. The standard claim requires one copy of the order number and all documents in the damage evidence checklist. If the order number and both required photos are present, use value DAMAGE_FORM_READY and approved reply: \"You have the order number and both photos needed to open a damage claim.\"",
+    "clm-photo": "Parcel damage / evidence checklist. The required photos are one exterior carton photo with the shipping label visible and one photo of the damage to the item. A carrier delivery photo is not a substitute for either photo.",
+    "clm-locker": "Delivery marked complete / lockers. When the carrier scans a package into a building locker but the pickup code is missing, use the locker-code workflow. Outcome: value LOCKER_CODE_REVIEW; approved reply: \"Support can check the missing locker pickup code.\"",
+    "clm-door": "Delivery marked complete / doorstep. For a private-home doorstep package scanned delivered with no locker involved, the missing package workflow uses a doorstep trace. Outcome: value DOORSTEP_TRACE; approved reply: \"Support can start a doorstep delivery trace.\"",
+    "clm-freight": "Freight / shipped loss. This claim procedure serves orders shipped on a freight pallet with a bill of lading. It does not specify loss procedures for parcel shipments.",
+    "rwd-convert": "Rewards / point conversion. A customer needs at least 500 points to redeem a voucher. Standard members get a $5 voucher at 500 points; Premier members get a $10 voucher at 500 points. Premier outcome: value VOUCHER_10; approved reply: \"As a Premier member, you can redeem 500 points for a $10 voucher.\"",
+    "rwd-expiry": "Rewards / expiration. Rewards points expire at midnight immediately after the printed expiry date, using the time zone on the account. After that midnight the points are expired. Outcome: value POINTS_EXPIRED; approved reply: \"Those rewards points have expired.\"",
+    "rwd-double": "Weekend points offer / online shop. Twice the usual points are available for direct purchases at the online shop during the offer weekend. This offer excludes marketplace partners.",
+    "rwd-partner": "Rewards / participating marketplace partners. Purchases from a participating marketplace partner earn base points only. Outcome: value BASE_POINTS_ONLY; approved reply: \"The participating marketplace purchase earns base points.\"",
+    "rwd-gift": "Rewards / gift certificates. The initial purchase of a gift certificate does not earn points. Eligible merchandise paid for with a gift certificate earns points for the buyer of that merchandise. Outcome for the certificate purchase: value NO_PURCHASE_POINTS; approved reply: \"Buying a gift certificate does not earn points.\"",
+    "cmp-dock": "Dock Two / display compatibility. Dock Two Revision 1 only works with Board 4. Dock Two Revision 2 works with both Board 4 and Board 5. Outcome for Revision 2 with Board 5: value BOARD_5_SUPPORTED; approved reply: \"Dock Two Revision 2 supports Board 5.\"",
+    "cmp-mount": "Desk Display / mounting plates. The Desk Display 18 accepts the Plate C tabletop mount. Outcome: value PLATE_C_SUPPORTED; approved reply: \"Your Desk Display 18 supports the Plate C tabletop mount.\"",
+    "cmp-cart": "Cart Display / mounting plates. The Cart Display 18 accepts the Plate C tabletop mount. Outcome: value PLATE_C_SUPPORTED; approved reply: \"Your Cart Display 18 supports the Plate C tabletop mount.\"",
+    "cmp-base": "Charging pads / supported products. The Base Q quick-charge pad lists Buds Four and Buds Five. This list is an excerpt and does not cover other product families.",
+    "cmp-suffix": "Headset cases / model numbers. To select the correct storage case, obtain the model suffix printed after H100. H100-A and H100-B require different cases. If no suffix is given, approved question: \"What suffix is printed after H100 on the headset?\"",
+    "doc-large": "User guides / large print. The current Guide 200 is available as a downloadable large-print PDF. Outcome: value LARGE_PRINT_DOWNLOAD; approved reply: \"You can download the Guide 200 as a large-print PDF.\"",
+    "doc-files": "User guides / standard download formats. The standard Guide 200 is published in HTML and standard-print PDF.",
+    "doc-braille-pilot": "Printed guides / Braille pilot, effective September 1 through October 31, 2026. During the pilot, customers may request a Braille copy of Guide 200. Outcome: value BRAILLE_REQUEST; approved reply: \"You can request a Braille copy of Guide 200 during the pilot.\"",
+    "doc-braille-after": "Printed guides / Braille pilot closeout, effective November 1, 2026. Requests submitted on or after November 1 are added to a waitlist. Outcome: value BRAILLE_WAITLIST; approved reply: \"New requests for a Braille copy of Guide 200 go on the waitlist.\"",
+    "doc-language": "Field Reader / published download excerpt. This regional catalog excerpt lists English, Spanish, and French Field Reader manuals. It covers the North America storefront only, and is not a full list of languages.",
+    "doc-guide-current": "Guide 300, version 3 / accessibility. The accessible walkthrough uses text descriptions for each image. This version replaced version 2 on August 3. Outcome: value TEXT_DESCRIPTIONS; approved reply: \"The current Guide 300 describes each image in text.\"",
+    "doc-guide-old": "Guide 300, version 2 / accessibility. The PDF uses an audio companion to describe images. Status: archived; superseded by version 3.",
+    "pck-hold": "Store pickup / reserve window. Orders are held through calendar day 5 after the ready notice. At the end of day 5 the merchandise is released. Outcome before the end of day 5: value PICKUP_STILL_HELD; approved reply: \"Your pickup order is still being held.\"",
+    "pck-proxy": "Store pickup / alternate pickup. The alternate named by the buyer may pick up the order, with valid photo ID matching that name. If those conditions and the order-type allowance are met, use value ALTERNATE_CAN_PICK_UP and approved reply: \"Your named alternate can pick up the order with matching photo ID.\"",
+    "pck-type": "Store pickup / order types. Home Goods orders permit named alternate pickup. Trade-In orders require the buyer to appear in person.",
+    "pck-hours": "Store pickup / posted hours. The store normally closes at 7 p.m. on weekdays. The posted weekly schedule does not show any holiday exceptions.",
+    "pck-cold": "Cold-chain store pickup. Refrigerated grocery orders must be collected by close on the day the ready notice is sent. This specialty rule replaces the five-day hold. For requests the following day or later use value COLD_HOLD_ENDED and approved reply: \"The pickup window for your refrigerated groceries has ended.\""
+  },
+  "cases": [
+    {
+      "id": "RET-01",
+      "cluster": "Returns",
+      "category": "boundary",
+      "question": "My unopened main-catalog Travel Stand arrived 30 calendar days ago. Can I still make a standard online return?",
+      "passage_ids": [
+        "ret-standard",
+        "ret-outlet"
+      ],
+      "expected": {
+        "decision": "answer",
+        "value": "RETURN_WINDOW_OPEN",
+        "evidence_ids": [
+          "ret-standard"
+        ],
+        "customer_response": "You are still within the 30-day return window."
+      }
+    },
+    {
+      "id": "RET-02",
+      "cluster": "Returns",
+      "category": "exception",
+      "question": "I changed my mind about a Certified Outlet order marked Final Sale delivered two days ago. Can I return it?",
+      "passage_ids": [
+        "ret-standard",
+        "ret-outlet"
+      ],
+      "expected": {
+        "decision": "answer",
+        "value": "FINAL_SALE",
+        "evidence_ids": [
+          "ret-outlet"
+        ],
+        "customer_response": "Final Sale Outlet orders cannot be returned for a change of mind."
+      }
+    },
+    {
+      "id": "RET-03",
+      "cluster": "Returns",
+      "category": "missing_information",
+      "question": "I want to return earbuds because the color isn't what I expected. The shipping box is open. What do you need to know first?",
+      "passage_ids": [
+        "ret-standard",
+        "ret-sealed"
+      ],
+      "expected": {
+        "decision": "clarify",
+        "value": null,
+        "evidence_ids": [
+          "ret-sealed"
+        ],
+        "customer_response": "Is the original hygiene seal still intact?"
+      }
+    },
+    {
+      "id": "RET-04",
+      "cluster": "Returns",
+      "category": "scope",
+      "question": "I received a keyboard as a gift and have its gift receipt. What type of refund is available to me if I return it?",
+      "passage_ids": [
+        "ret-payment",
+        "ret-gift"
+      ],
+      "expected": {
+        "decision": "answer",
+        "value": "GIFT_STORE_CREDIT",
+        "evidence_ids": [
+          "ret-gift"
+        ],
+        "customer_response": "A gift receipt return can be issued as store credit."
+      }
+    },
+    {
+      "id": "SHP-01",
+      "cluster": "Shipping",
+      "category": "boundary",
+      "question": "My express payment cleared exactly at 12:00 local fulfillment time on a normal business Monday. When will the order dispatch?",
+      "passage_ids": [
+        "shp-express",
+        "shp-estimate"
+      ],
+      "expected": {
+        "decision": "answer",
+        "value": "NEXT_BUSINESS_DAY",
+        "evidence_ids": [
+          "shp-express"
+        ],
+        "customer_response": "Your express order will dispatch the next business day."
+      }
+    },
+    {
+      "id": "SHP-02",
+      "cluster": "Shipping",
+      "category": "evidence_distractor",
+      "question": "You are fulfilling my order from ZIP 74105, and I live in 74011. Can I use local courier delivery?",
+      "passage_ids": [
+        "shp-warehouse",
+        "shp-courier"
+      ],
+      "expected": {
+        "decision": "answer",
+        "value": "COURIER_UNAVAILABLE",
+        "evidence_ids": [
+          "shp-courier"
+        ],
+        "customer_response": "Local courier delivery is unavailable for that ZIP code."
+      }
+    },
+    {
+      "id": "SHP-03",
+      "cluster": "Shipping",
+      "category": "insufficient_evidence",
+      "question": "I can accept a delivery estimate, but can you confirm that Express offers a 10 a.m. arrival guarantee?",
+      "passage_ids": [
+        "shp-express",
+        "shp-estimate"
+      ],
+      "expected": {
+        "decision": "abstain",
+        "value": null,
+        "evidence_ids": [],
+        "customer_response": "I can't confirm that from the available policy."
+      }
+    },
+    {
+      "id": "SHP-04",
+      "cluster": "Shipping",
+      "category": "precedence",
+      "question": "Checkout showed Express for my order, but my address is an APO. What shipping method will it use?",
+      "passage_ids": [
+        "shp-options",
+        "shp-military"
+      ],
+      "expected": {
+        "decision": "answer",
+        "value": "POSTAL_ECONOMY",
+        "evidence_ids": [
+          "shp-military"
+        ],
+        "customer_response": "Military postal addresses ship by Postal Economy."
+      }
+    },
+    {
+      "id": "BIL-01",
+      "cluster": "Billing",
+      "category": "scope",
+      "question": "My bank displays a card entry as pending. Support sees no capture. What kind of entry is it?",
+      "passage_ids": [
+        "bil-capture",
+        "bil-hold"
+      ],
+      "expected": {
+        "decision": "answer",
+        "value": "AUTHORIZATION_HOLD",
+        "evidence_ids": [
+          "bil-hold"
+        ],
+        "customer_response": "The pending entry is an authorization hold."
+      }
+    },
+    {
+      "id": "BIL-02",
+      "cluster": "Billing",
+      "category": "combined_evidence",
+      "question": "I am the finance lead for a Business plan workspace. Can the invoice PDF be emailed to me in that role?",
+      "passage_ids": [
+        "bil-roles",
+        "bil-invoice",
+        "bil-hold"
+      ],
+      "expected": {
+        "decision": "answer",
+        "value": "EMAIL_BILLING_CONTACT",
+        "evidence_ids": [
+          "bil-invoice",
+          "bil-roles"
+        ],
+        "customer_response": "The invoice can be emailed to the workspace billing contact."
+      }
+    },
+    {
+      "id": "BIL-03",
+      "cluster": "Billing",
+      "category": "conflicting_evidence",
+      "question": "I was issued a Spring Courtesy Credit on March 10. Can you confirm the number of days before it expires?",
+      "passage_ids": [
+        "bil-spring-30",
+        "bil-spring-45",
+        "bil-hold"
+      ],
+      "expected": {
+        "decision": "abstain",
+        "value": null,
+        "evidence_ids": [
+          "bil-spring-30",
+          "bil-spring-45"
+        ],
+        "customer_response": "I can't confirm that from the available policy."
+      }
+    },
+    {
+      "id": "BIL-04",
+      "cluster": "Billing",
+      "category": "exception",
+      "question": "Two entries for my single order have settled under distinct capture IDs. What action can support take right now?",
+      "passage_ids": [
+        "bil-capture",
+        "bil-hold"
+      ],
+      "expected": {
+        "decision": "answer",
+        "value": "DUPLICATE_REVIEW",
+        "evidence_ids": [
+          "bil-capture"
+        ],
+        "customer_response": "Two settled charges for one order can be reviewed."
+      }
+    },
+    {
+      "id": "SUB-01",
+      "cluster": "Subscriptions",
+      "category": "effective_date",
+      "question": "I started my Annual plan in June 2026 and it is up for its first renewal. What storage amount will I keep at renewal?",
+      "passage_ids": [
+        "sub-current",
+        "sub-original"
+      ],
+      "expected": {
+        "decision": "answer",
+        "value": "STORAGE_100_GB",
+        "evidence_ids": [
+          "sub-original"
+        ],
+        "customer_response": "Your annual plan keeps 100 GB at this renewal."
+      }
+    },
+    {
+      "id": "SUB-02",
+      "cluster": "Subscriptions",
+      "category": "exception",
+      "question": "My plan is Annual Seasonal and I haven't paused it this year. Can I pause it for three months?",
+      "passage_ids": [
+        "sub-monthly",
+        "sub-seasonal"
+      ],
+      "expected": {
+        "decision": "answer",
+        "value": "SEASONAL_PAUSE",
+        "evidence_ids": [
+          "sub-seasonal"
+        ],
+        "customer_response": "Your Annual Seasonal plan can use its three-month pause."
+      }
+    },
+    {
+      "id": "SUB-03",
+      "cluster": "Subscriptions",
+      "category": "missing_information",
+      "question": "An Annual renewal charge already posted. I want it reversed. What do you need to check my eligibility?",
+      "passage_ids": [
+        "sub-cancel",
+        "sub-renewal"
+      ],
+      "expected": {
+        "decision": "clarify",
+        "value": null,
+        "evidence_ids": [
+          "sub-renewal"
+        ],
+        "customer_response": "What date did the most recent renewal charge post?"
+      }
+    },
+    {
+      "id": "SUB-04",
+      "cluster": "Subscriptions",
+      "category": "scope",
+      "question": "I canceled my Annual plan today. I only want to know how long I can still access the service.",
+      "passage_ids": [
+        "sub-renewal",
+        "sub-cancel"
+      ],
+      "expected": {
+        "decision": "answer",
+        "value": "ENDS_AT_EXPIRATION",
+        "evidence_ids": [
+          "sub-cancel"
+        ],
+        "customer_response": "Your access continues until the current subscription expires."
+      }
+    },
+    {
+      "id": "WAR-01",
+      "cluster": "Warranties",
+      "category": "combined_evidence",
+      "question": "I bought a full-size new Field tablet and registered my Elite plan exactly 60 days after purchase. What is my total manufacturer defect coverage term?",
+      "passage_ids": [
+        "war-standard",
+        "war-plan",
+        "war-damage"
+      ],
+      "expected": {
+        "decision": "answer",
+        "value": "WARRANTY_36_MONTHS",
+        "evidence_ids": [
+          "war-plan",
+          "war-standard"
+        ],
+        "customer_response": "Your registered Elite plan provides 36 months of manufacturer defect coverage."
+      }
+    },
+    {
+      "id": "WAR-02",
+      "cluster": "Warranties",
+      "category": "exception",
+      "question": "My new Field tablet is eight months old, but its screen cracked when I dropped it. Is that covered by the manufacturer warranty?",
+      "passage_ids": [
+        "war-standard",
+        "war-damage"
+      ],
+      "expected": {
+        "decision": "answer",
+        "value": "ACCIDENTAL_EXCLUDED",
+        "evidence_ids": [
+          "war-damage"
+        ],
+        "customer_response": "A screen cracked by a drop is outside the manufacturer defect warranty."
+      }
+    },
+    {
+      "id": "WAR-03",
+      "cluster": "Warranties",
+      "category": "insufficient_evidence",
+      "question": "The charger included with my new Field tablet stopped working. What manufacturer warranty term applies to the charger itself?",
+      "passage_ids": [
+        "war-standard",
+        "war-keyboard"
+      ],
+      "expected": {
+        "decision": "abstain",
+        "value": null,
+        "evidence_ids": [],
+        "customer_response": "I can't confirm that from the available policy."
+      }
+    },
+    {
+      "id": "WAR-04",
+      "cluster": "Warranties",
+      "category": "combined_boundary_exception",
+      "question": "My Outlet refurbished keyboard has a hardware defect on calendar day 90 after delivery. Is its warranty window open?",
+      "passage_ids": [
+        "war-keyboard",
+        "war-refurb"
+      ],
+      "expected": {
+        "decision": "answer",
+        "value": "REFURB_WARRANTY_OPEN",
+        "evidence_ids": [
+          "war-refurb"
+        ],
+        "customer_response": "Your refurbished keyboard is still within its 90-day hardware warranty."
+      }
+    },
+    {
+      "id": "REP-01",
+      "cluster": "Repairs",
+      "category": "boundary",
+      "question": "Can I pay the mail-in repair estimate that the service center issued 15 calendar days ago?",
+      "passage_ids": [
+        "rep-estimate",
+        "rep-mail"
+      ],
+      "expected": {
+        "decision": "answer",
+        "value": "NEW_ESTIMATE_REQUIRED",
+        "evidence_ids": [
+          "rep-estimate"
+        ],
+        "customer_response": "The service center needs to issue a new estimate before payment."
+      }
+    },
+    {
+      "id": "REP-02",
+      "cluster": "Repairs",
+      "category": "missing_information",
+      "question": "My Dock One needs diagnosis. Can that happen remotely?",
+      "passage_ids": [
+        "rep-estimate",
+        "rep-dock"
+      ],
+      "expected": {
+        "decision": "clarify",
+        "value": null,
+        "evidence_ids": [
+          "rep-dock"
+        ],
+        "customer_response": "Does the label on your Dock One say Revision A or Revision B?"
+      }
+    },
+    {
+      "id": "REP-03",
+      "cluster": "Repairs",
+      "category": "scope",
+      "question": "My display is being repaired and isn't part of a recall. May I get a temporary display?",
+      "passage_ids": [
+        "rep-printer",
+        "rep-loaner"
+      ],
+      "expected": {
+        "decision": "answer",
+        "value": "NO_LOANER",
+        "evidence_ids": [
+          "rep-loaner"
+        ],
+        "customer_response": "A loaner display is unavailable for a standard repair."
+      }
+    },
+    {
+      "id": "REP-04",
+      "cluster": "Repairs",
+      "category": "evidence_distractor",
+      "question": "I have Plus and I'm bringing my device into the store today. Do I move ahead in the queue?",
+      "passage_ids": [
+        "rep-mail",
+        "rep-walkin"
+      ],
+      "expected": {
+        "decision": "answer",
+        "value": "CHECK_IN_ORDER",
+        "evidence_ids": [
+          "rep-walkin"
+        ],
+        "customer_response": "Walk-in repairs are handled in check-in order."
+      }
+    },
+    {
+      "id": "ACC-01",
+      "cluster": "Accounts",
+      "category": "scope",
+      "question": "I administer a managed workspace, but someone else owns it. Who can export the full workspace archive?",
+      "passage_ids": [
+        "acc-personal",
+        "acc-export"
+      ],
+      "expected": {
+        "decision": "answer",
+        "value": "OWNER_MUST_EXPORT",
+        "evidence_ids": [
+          "acc-export"
+        ],
+        "customer_response": "The workspace owner can export the full archive."
+      }
+    },
+    {
+      "id": "ACC-02",
+      "cluster": "Accounts",
+      "category": "boundary",
+      "question": "My export link was issued exactly 24 hours ago. What should I do to download my export?",
+      "passage_ids": [
+        "acc-personal",
+        "acc-link"
+      ],
+      "expected": {
+        "decision": "answer",
+        "value": "REQUEST_NEW_LINK",
+        "evidence_ids": [
+          "acc-link"
+        ],
+        "customer_response": "Your export link has expired and you can request a new one."
+      }
+    },
+    {
+      "id": "ACC-03",
+      "cluster": "Accounts",
+      "category": "precedence",
+      "question": "The order used to show Queued, but the shipping label has now printed. How do I request an address change?",
+      "passage_ids": [
+        "acc-address",
+        "shp-options"
+      ],
+      "expected": {
+        "decision": "answer",
+        "value": "INTERCEPT_REQUIRED",
+        "evidence_ids": [
+          "acc-address"
+        ],
+        "customer_response": "An address change after label printing requires a shipment interception request."
+      }
+    },
+    {
+      "id": "ACC-04",
+      "cluster": "Accounts",
+      "category": "missing_information",
+      "question": "I reinstalled the mobile app and see two sign-in screens. Which should I choose?",
+      "passage_ids": [
+        "acc-login",
+        "acc-personal",
+        "acc-export"
+      ],
+      "expected": {
+        "decision": "clarify",
+        "value": null,
+        "evidence_ids": [
+          "acc-login"
+        ],
+        "customer_response": "Are you signing in to a personal account or a company-managed workspace?"
+      }
+    },
+    {
+      "id": "CLM-01",
+      "cluster": "Shipping claims",
+      "category": "boundary",
+      "question": "I found parcel damage today, which is calendar day 7 after the delivery scan. Can I still report it?",
+      "passage_ids": [
+        "clm-damage",
+        "clm-freight"
+      ],
+      "expected": {
+        "decision": "answer",
+        "value": "DAMAGE_WINDOW_OPEN",
+        "evidence_ids": [
+          "clm-damage"
+        ],
+        "customer_response": "You can still open a parcel damage report."
+      }
+    },
+    {
+      "id": "CLM-02",
+      "cluster": "Shipping claims",
+      "category": "combined_evidence",
+      "question": "I have my order number, an exterior carton photo showing the shipping label, and an item damage photo. Do I have everything the damage claim form needs?",
+      "passage_ids": [
+        "clm-photo",
+        "clm-form",
+        "clm-damage"
+      ],
+      "expected": {
+        "decision": "answer",
+        "value": "DAMAGE_FORM_READY",
+        "evidence_ids": [
+          "clm-form",
+          "clm-photo"
+        ],
+        "customer_response": "You have the order number and both photos needed to open a damage claim."
+      }
+    },
+    {
+      "id": "CLM-03",
+      "cluster": "Shipping claims",
+      "category": "scope",
+      "question": "The carrier scanned my order into my building's parcel locker, but I never received a pickup code. What can support do?",
+      "passage_ids": [
+        "clm-door",
+        "clm-locker"
+      ],
+      "expected": {
+        "decision": "answer",
+        "value": "LOCKER_CODE_REVIEW",
+        "evidence_ids": [
+          "clm-locker"
+        ],
+        "customer_response": "Support can check the missing locker pickup code."
+      }
+    },
+    {
+      "id": "CLM-04",
+      "cluster": "Shipping claims",
+      "category": "insufficient_evidence",
+      "question": "My regular parcel is confirmed lost. What is the deadline for filing a loss claim for a parcel?",
+      "passage_ids": [
+        "clm-freight",
+        "clm-damage"
+      ],
+      "expected": {
+        "decision": "abstain",
+        "value": null,
+        "evidence_ids": [],
+        "customer_response": "I can't confirm that from the available policy."
+      }
+    },
+    {
+      "id": "RWD-01",
+      "cluster": "Rewards",
+      "category": "boundary",
+      "question": "I'm a Premier member with exactly 500 points. What voucher can I redeem?",
+      "passage_ids": [
+        "rwd-convert",
+        "rwd-expiry"
+      ],
+      "expected": {
+        "decision": "answer",
+        "value": "VOUCHER_10",
+        "evidence_ids": [
+          "rwd-convert"
+        ],
+        "customer_response": "As a Premier member, you can redeem 500 points for a $10 voucher."
+      }
+    },
+    {
+      "id": "RWD-02",
+      "cluster": "Rewards",
+      "category": "effective_date",
+      "question": "My points were valid through November 5 on my account. It's 12:01 a.m. November 6 in my account time zone. Are those points still valid?",
+      "passage_ids": [
+        "rwd-convert",
+        "rwd-expiry"
+      ],
+      "expected": {
+        "decision": "answer",
+        "value": "POINTS_EXPIRED",
+        "evidence_ids": [
+          "rwd-expiry"
+        ],
+        "customer_response": "Those rewards points have expired."
+      }
+    },
+    {
+      "id": "RWD-03",
+      "cluster": "Rewards",
+      "category": "precedence",
+      "question": "I bought from a participating marketplace partner during the online shop's double-points weekend. Will I earn double points or base points for that purchase?",
+      "passage_ids": [
+        "rwd-double",
+        "rwd-partner"
+      ],
+      "expected": {
+        "decision": "answer",
+        "value": "BASE_POINTS_ONLY",
+        "evidence_ids": [
+          "rwd-partner"
+        ],
+        "customer_response": "The participating marketplace purchase earns base points."
+      }
+    },
+    {
+      "id": "RWD-04",
+      "cluster": "Rewards",
+      "category": "scope",
+      "question": "I bought a gift certificate using my own money. Does buying the certificate earn me points before anyone redeems it?",
+      "passage_ids": [
+        "rwd-partner",
+        "rwd-gift"
+      ],
+      "expected": {
+        "decision": "answer",
+        "value": "NO_PURCHASE_POINTS",
+        "evidence_ids": [
+          "rwd-gift"
+        ],
+        "customer_response": "Buying a gift certificate does not earn points."
+      }
+    },
+    {
+      "id": "CMP-01",
+      "cluster": "Compatibility",
+      "category": "scope",
+      "question": "Can I connect Dock Two Revision 2 to Board 5?",
+      "passage_ids": [
+        "cmp-dock",
+        "cmp-base"
+      ],
+      "expected": {
+        "decision": "answer",
+        "value": "BOARD_5_SUPPORTED",
+        "evidence_ids": [
+          "cmp-dock"
+        ],
+        "customer_response": "Dock Two Revision 2 supports Board 5."
+      }
+    },
+    {
+      "id": "CMP-02",
+      "cluster": "Compatibility",
+      "category": "evidence_distractor",
+      "question": "I have a Desk Display 18. Does the Plate C tabletop mount fit?",
+      "passage_ids": [
+        "cmp-cart",
+        "cmp-mount"
+      ],
+      "expected": {
+        "decision": "answer",
+        "value": "PLATE_C_SUPPORTED",
+        "evidence_ids": [
+          "cmp-mount"
+        ],
+        "customer_response": "Your Desk Display 18 supports the Plate C tabletop mount."
+      }
+    },
+    {
+      "id": "CMP-03",
+      "cluster": "Compatibility",
+      "category": "insufficient_evidence",
+      "question": "Will a Base Q quick-charge pad charge my Field Watch One?",
+      "passage_ids": [
+        "cmp-base",
+        "cmp-dock"
+      ],
+      "expected": {
+        "decision": "abstain",
+        "value": null,
+        "evidence_ids": [],
+        "customer_response": "I can't confirm that from the available policy."
+      }
+    },
+    {
+      "id": "CMP-04",
+      "cluster": "Compatibility",
+      "category": "missing_information",
+      "question": "I have an H100 headset and need a storage case. Can you tell me which one to buy?",
+      "passage_ids": [
+        "cmp-suffix",
+        "cmp-cart"
+      ],
+      "expected": {
+        "decision": "clarify",
+        "value": null,
+        "evidence_ids": [
+          "cmp-suffix"
+        ],
+        "customer_response": "What suffix is printed after H100 on the headset?"
+      }
+    },
+    {
+      "id": "DOC-01",
+      "cluster": "Accessible documentation",
+      "category": "evidence_distractor",
+      "question": "Can I download a large-print version of Guide 200?",
+      "passage_ids": [
+        "doc-files",
+        "doc-large"
+      ],
+      "expected": {
+        "decision": "answer",
+        "value": "LARGE_PRINT_DOWNLOAD",
+        "evidence_ids": [
+          "doc-large"
+        ],
+        "customer_response": "You can download the Guide 200 as a large-print PDF."
+      }
+    },
+    {
+      "id": "DOC-02",
+      "cluster": "Accessible documentation",
+      "category": "effective_date",
+      "question": "Today is November 1, 2026. What happens if I request a printed Guide 200 in Braille today?",
+      "passage_ids": [
+        "doc-braille-pilot",
+        "doc-braille-after"
+      ],
+      "expected": {
+        "decision": "answer",
+        "value": "BRAILLE_WAITLIST",
+        "evidence_ids": [
+          "doc-braille-after"
+        ],
+        "customer_response": "New requests for a Braille copy of Guide 200 go on the waitlist."
+      }
+    },
+    {
+      "id": "DOC-03",
+      "cluster": "Accessible documentation",
+      "category": "insufficient_evidence",
+      "question": "Is there a Portuguese Field Reader manual published for the Portugal storefront?",
+      "passage_ids": [
+        "doc-language",
+        "doc-files"
+      ],
+      "expected": {
+        "decision": "abstain",
+        "value": null,
+        "evidence_ids": [],
+        "customer_response": "I can't confirm that from the available policy."
+      }
+    },
+    {
+      "id": "DOC-04",
+      "cluster": "Accessible documentation",
+      "category": "precedence",
+      "question": "I found the archived Guide 300. What kind of image descriptions does the current version have?",
+      "passage_ids": [
+        "doc-guide-old",
+        "doc-guide-current"
+      ],
+      "expected": {
+        "decision": "answer",
+        "value": "TEXT_DESCRIPTIONS",
+        "evidence_ids": [
+          "doc-guide-current"
+        ],
+        "customer_response": "The current Guide 300 describes each image in text."
+      }
+    },
+    {
+      "id": "PCK-01",
+      "cluster": "Store pickup",
+      "category": "boundary",
+      "question": "It's still midday on calendar day 5 after my standard pickup order's ready notice. Is the store still holding it?",
+      "passage_ids": [
+        "pck-hold",
+        "pck-hours"
+      ],
+      "expected": {
+        "decision": "answer",
+        "value": "PICKUP_STILL_HELD",
+        "evidence_ids": [
+          "pck-hold"
+        ],
+        "customer_response": "Your pickup order is still being held."
+      }
+    },
+    {
+      "id": "PCK-02",
+      "cluster": "Store pickup",
+      "category": "combined_evidence",
+      "question": "I named Dana as alternate pickup for a Home Goods order. Dana has valid photo ID in that exact name. Can Dana collect it?",
+      "passage_ids": [
+        "pck-proxy",
+        "pck-type",
+        "pck-hold"
+      ],
+      "expected": {
+        "decision": "answer",
+        "value": "ALTERNATE_CAN_PICK_UP",
+        "evidence_ids": [
+          "pck-proxy",
+          "pck-type"
+        ],
+        "customer_response": "Your named alternate can pick up the order with matching photo ID."
+      }
+    },
+    {
+      "id": "PCK-03",
+      "cluster": "Store pickup",
+      "category": "insufficient_evidence",
+      "question": "I want to pick up my order at 6 p.m. on a weekday holiday. Can you confirm the store will still be open that day?",
+      "passage_ids": [
+        "pck-hours",
+        "pck-hold"
+      ],
+      "expected": {
+        "decision": "abstain",
+        "value": null,
+        "evidence_ids": [],
+        "customer_response": "I can't confirm that from the available policy."
+      }
+    },
+    {
+      "id": "PCK-04",
+      "cluster": "Store pickup",
+      "category": "precedence",
+      "question": "My refrigerated groceries were ready yesterday. Can I still collect them today under the five-day hold?",
+      "passage_ids": [
+        "pck-hold",
+        "pck-cold"
+      ],
+      "expected": {
+        "decision": "answer",
+        "value": "COLD_HOLD_ENDED",
+        "evidence_ids": [
+          "pck-cold"
+        ],
+        "customer_response": "The pickup window for your refrigerated groceries has ended."
+      }
+    }
+  ]
+}

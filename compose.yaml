@@ -1,0 +1,19 @@
+name: llm-regression-suite
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: evalsuite
+      POSTGRES_USER: eval
+      POSTGRES_PASSWORD: eval
+    ports:
+      - "127.0.0.1:${DB_PORT:-5488}:5432"
+    volumes:
+      - evidence:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U eval -d evalsuite"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+volumes:
+  evidence:

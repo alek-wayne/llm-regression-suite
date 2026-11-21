@@ -1,0 +1,386 @@
+{
+  "RET-01": [
+    {
+      "text": "{\"decision\": \"answer\", \"value\": \"RETURN_WINDOW_OPEN\", \"customer_response\": \"You are still within the 30-day return window.\", \"evidence_ids\": [\"ret-standard\"]}",
+      "input_tokens": 458,
+      "output_tokens": 43,
+      "latency_ms": 612
+    }
+  ],
+  "RET-02": [
+    {
+      "text": "{\"decision\": \"answer\", \"value\": \"FINAL_SALE\", \"customer_response\": \"Final Sale Outlet orders cannot be returned for a change of mind.\", \"evidence_ids\": [\"ret-outlet\"]}",
+      "input_tokens": 531,
+      "output_tokens": 43,
+      "latency_ms": 843
+    }
+  ],
+  "RET-03": [
+    {
+      "text": "{\"decision\": \"clarify\", \"value\": null, \"customer_response\": \"Is the original hygiene seal still intact?\", \"evidence_ids\": [\"ret-sealed\"]}",
+      "input_tokens": 563,
+      "output_tokens": 39,
+      "latency_ms": 1021
+    }
+  ],
+  "RET-04": [
+    {
+      "text": "{\"decision\": \"answer\", \"value\": \"GIFT_STORE_CREDIT\", \"customer_response\": \"A gift receipt return can be issued as store credit.\", \"evidence_ids\": [\"ret-gift\"]}",
+      "input_tokens": 634,
+      "output_tokens": 42,
+      "latency_ms": 1283
+    }
+  ],
+  "SHP-01": [
+    {
+      "text": "{\"decision\": \"answer\", \"value\": \"NEXT_BUSINESS_DAY\", \"customer_response\": \"Your express order will dispatch the next business day.\", \"evidence_ids\": [\"shp-express\"]}",
+      "input_tokens": 508,
+      "output_tokens": 41,
+      "latency_ms": 1382
+    }
+  ],
+  "SHP-02": [
+    {
+      "text": "{\"decision\": \"answer\", \"value\": \"COURIER_UNAVAILABLE\", \"customer_response\": \"Local courier delivery is unavailable for that ZIP code.\", \"evidence_ids\": [\"shp-courier\"]}",
+      "input_tokens": 527,
+      "output_tokens": 48,
+      "latency_ms": 1636
+    }
+  ],
+  "SHP-03": [
+    {
+      "text": "{\"decision\": \"abstain\", \"value\": null, \"customer_response\": \"I can't confirm that from the available policy.\", \"evidence_ids\": []}",
+      "input_tokens": 606,
+      "output_tokens": 36,
+      "latency_ms": 1835
+    }
+  ],
+  "SHP-04": [
+    {
+      "text": "{\"decision\": \"answer\", \"value\": \"POSTAL_ECONOMY\", \"customer_response\": \"Military postal addresses ship by Postal Economy.\", \"evidence_ids\": [\"shp-military\"]}",
+      "input_tokens": 667,
+      "output_tokens": 44,
+      "latency_ms": 642
+    }
+  ],
+  "BIL-01": [
+    {
+      "text": "{\"decision\": \"answer\", \"value\": \"AUTHORIZATION_HOLD\", \"customer_response\": \"The pending entry is an authorization hold.\", \"evidence_ids\": [\"bil-hold\"]}",
+      "input_tokens": 522,
+      "output_tokens": 39,
+      "latency_ms": 888
+    }
+  ],
+  "BIL-02": [
+    {
+      "text": "{\"decision\": \"answer\", \"value\": \"EMAIL_BILLING_CONTACT\", \"customer_response\": \"The invoice can be emailed to the workspace billing contact.\", \"evidence_ids\": [\"bil-invoice\", \"bil-roles\"]}",
+      "input_tokens": 560,
+      "output_tokens": 51,
+      "latency_ms": 1030
+    }
+  ],
+  "BIL-03": [
+    {
+      "text": "{\"decision\": \"abstain\", \"value\": null, \"customer_response\": \"I can't confirm that from the available policy.\", \"evidence_ids\": [\"bil-spring-45\", \"bil-spring-30\"]}",
+      "input_tokens": 638,
+      "output_tokens": 41,
+      "latency_ms": 1217
+    }
+  ],
+  "BIL-04": [
+    {
+      "text": "{\"decision\": \"answer\", \"value\": \"DUPLICATE_REVIEW\", \"customer_response\": \"Two settled charges for one order can be reviewed.\", \"evidence_ids\": [\"bil-capture\"]}",
+      "input_tokens": 480,
+      "output_tokens": 44,
+      "latency_ms": 1448
+    }
+  ],
+  "SUB-01": [
+    {
+      "text": "{\"decision\": \"answer\", \"value\": \"STORAGE_100_GB\", \"customer_response\": \"Your annual plan keeps 100 GB at this renewal.\", \"evidence_ids\": [\"sub-original\"]}",
+      "input_tokens": 553,
+      "output_tokens": 41,
+      "latency_ms": 1626
+    }
+  ],
+  "SUB-02": [
+    {
+      "text": "{\"decision\": \"answer\", \"value\": \"SEASONAL_PAUSE\", \"customer_response\": \"Your Annual Seasonal plan can use its three-month pause.\", \"evidence_ids\": [\"sub-seasonal\"]}",
+      "input_tokens": 585,
+      "output_tokens": 41,
+      "latency_ms": 1888
+    }
+  ],
+  "SUB-03": [
+    {
+      "text": "{\"decision\": \"clarify\", \"value\": null, \"customer_response\": \"What date did the most recent renewal charge post?\", \"evidence_ids\": [\"sub-renewal\"]}",
+      "input_tokens": 656,
+      "output_tokens": 42,
+      "latency_ms": 622
+    }
+  ],
+  "SUB-04": [
+    {
+      "text": "{\"decision\": \"answer\", \"value\": \"ENDS_AT_EXPIRATION\", \"customer_response\": \"Your access continues until the current subscription expires.\", \"evidence_ids\": [\"sub-cancel\"]}",
+      "input_tokens": 530,
+      "output_tokens": 47,
+      "latency_ms": 876
+    }
+  ],
+  "WAR-01": [
+    {
+      "text": "{\"decision\": \"answer\", \"value\": \"WARRANTY_36_MONTHS\", \"customer_response\": \"Your registered Elite plan provides 36 months of manufacturer defect coverage.\", \"evidence_ids\": [\"war-plan\", \"war-standard\"]}",
+      "input_tokens": 549,
+      "output_tokens": 56,
+      "latency_ms": 1075
+    }
+  ],
+  "WAR-02": [
+    {
+      "text": "{\"decision\": \"answer\", \"value\": \"ACCIDENTAL_EXCLUDED\", \"customer_response\": \"A screen cracked by a drop is outside the manufacturer defect warranty.\", \"evidence_ids\": [\"war-damage\"]}",
+      "input_tokens": 628,
+      "output_tokens": 48,
+      "latency_ms": 1247
+    }
+  ],
+  "WAR-03": [
+    {
+      "text": "{\"decision\": \"abstain\", \"value\": null, \"customer_response\": \"I can't confirm that from the available policy.\", \"evidence_ids\": []}",
+      "input_tokens": 480,
+      "output_tokens": 36,
+      "latency_ms": 1493
+    }
+  ],
+  "WAR-04": [
+    {
+      "text": "{\"decision\": \"answer\", \"value\": \"REFURB_WARRANTY_OPEN\", \"customer_response\": \"Your refurbished keyboard is still within its 90-day hardware warranty.\", \"evidence_ids\": [\"war-refurb\"]}",
+      "input_tokens": 544,
+      "output_tokens": 47,
+      "latency_ms": 1635
+    }
+  ],
+  "REP-01": [
+    {
+      "text": "{\"decision\": \"answer\", \"value\": \"NEW_ESTIMATE_REQUIRED\", \"customer_response\": \"The service center needs to issue a new estimate before payment.\", \"evidence_ids\": [\"rep-estimate\"]}",
+      "input_tokens": 582,
+      "output_tokens": 50,
+      "latency_ms": 1822
+    }
+  ],
+  "REP-02": [
+    {
+      "text": "{\"decision\": \"clarify\", \"value\": null, \"customer_response\": \"Does the label on your Dock One say Revision A or Revision B?\", \"evidence_ids\": [\"rep-dock\"]}",
+      "input_tokens": 660,
+      "output_tokens": 41,
+      "latency_ms": 688
+    }
+  ],
+  "REP-03": [
+    {
+      "text": "{\"decision\": \"answer\", \"value\": \"NO_LOANER\", \"customer_response\": \"A loaner display is unavailable for a standard repair.\", \"evidence_ids\": [\"rep-loaner\"]}",
+      "input_tokens": 502,
+      "output_tokens": 38,
+      "latency_ms": 866
+    }
+  ],
+  "REP-04": [
+    {
+      "text": "{\"decision\": \"answer\", \"value\": \"CHECK_IN_ORDER\", \"customer_response\": \"Walk-in repairs are handled in check-in order.\", \"evidence_ids\": [\"rep-walkin\"]}",
+      "input_tokens": 575,
+      "output_tokens": 44,
+      "latency_ms": 1128
+    }
+  ],
+  "ACC-01": [
+    {
+      "text": "{\"decision\": \"answer\", \"value\": \"OWNER_MUST_EXPORT\", \"customer_response\": \"The workspace owner can export the full archive.\", \"evidence_ids\": [\"acc-export\"]}",
+      "input_tokens": 607,
+      "output_tokens": 43,
+      "latency_ms": 1227
+    }
+  ],
+  "ACC-02": [
+    {
+      "text": "{\"decision\": \"answer\", \"value\": \"REQUEST_NEW_LINK\", \"customer_response\": \"Your export link has expired and you can request a new one.\", \"evidence_ids\": [\"acc-link\"]}",
+      "input_tokens": 469,
+      "output_tokens": 46,
+      "latency_ms": 1481
+    }
+  ],
+  "ACC-03": [
+    {
+      "text": "{\"decision\": \"answer\", \"value\": \"INTERCEPT_REQUIRED\", \"customer_response\": \"An address change after label printing requires a shipment interception request.\", \"evidence_ids\": [\"acc-address\"]}",
+      "input_tokens": 552,
+      "output_tokens": 50,
+      "latency_ms": 1680
+    }
+  ],
+  "ACC-04": [
+    {
+      "text": "{\"decision\": \"clarify\", \"value\": null, \"customer_response\": \"Are you signing in to a personal account or a company-managed workspace?\", \"evidence_ids\": [\"acc-login\"]}",
+      "input_tokens": 571,
+      "output_tokens": 45,
+      "latency_ms": 1852
+    }
+  ],
+  "CLM-01": [
+    {
+      "text": "{\"decision\": \"answer\", \"value\": \"DAMAGE_WINDOW_OPEN\", \"customer_response\": \"You can still open a parcel damage report.\", \"evidence_ids\": [\"clm-damage\"]}",
+      "input_tokens": 650,
+      "output_tokens": 39,
+      "latency_ms": 733
+    }
+  ],
+  "CLM-02": [
+    {
+      "text": "{\"decision\": \"answer\", \"value\": \"DAMAGE_FORM_READY\", \"customer_response\": \"You have the order number and both photos needed to open a damage claim.\", \"evidence_ids\": [\"clm-form\", \"clm-photo\"]}",
+      "input_tokens": 502,
+      "output_tokens": 53,
+      "latency_ms": 875
+    }
+  ],
+  "CLM-03": [
+    {
+      "text": "{\"decision\": \"answer\", \"value\": \"LOCKER_CODE_REVIEW\", \"customer_response\": \"Support can check the missing locker pickup code.\", \"evidence_ids\": [\"clm-locker\"]}",
+      "input_tokens": 566,
+      "output_tokens": 42,
+      "latency_ms": 1062
+    }
+  ],
+  "CLM-04": [
+    {
+      "text": "{\"decision\": \"abstain\", \"value\": null, \"customer_response\": \"I can't confirm that from the available policy.\", \"evidence_ids\": []}",
+      "input_tokens": 604,
+      "output_tokens": 32,
+      "latency_ms": 1293
+    }
+  ],
+  "RWD-01": [
+    {
+      "text": "{\"decision\": \"answer\", \"value\": \"VOUCHER_10\", \"customer_response\": \"As a Premier member, you can redeem 500 points for a $10 voucher.\", \"evidence_ids\": [\"rwd-convert\"]}",
+      "input_tokens": 473,
+      "output_tokens": 48,
+      "latency_ms": 1471
+    }
+  ],
+  "RWD-02": [
+    {
+      "text": "{\"decision\": \"answer\", \"value\": \"POINTS_EXPIRED\", \"customer_response\": \"Those rewards points have expired.\", \"evidence_ids\": [\"rwd-expiry\"]}",
+      "input_tokens": 524,
+      "output_tokens": 38,
+      "latency_ms": 1733
+    }
+  ],
+  "RWD-03": [
+    {
+      "text": "{\"decision\": \"answer\", \"value\": \"BASE_POINTS_ONLY\", \"customer_response\": \"The participating marketplace purchase earns base points.\", \"evidence_ids\": [\"rwd-partner\"]}",
+      "input_tokens": 597,
+      "output_tokens": 46,
+      "latency_ms": 1832
+    }
+  ],
+  "RWD-04": [
+    {
+      "text": "{\"decision\": \"answer\", \"value\": \"NO_PURCHASE_POINTS\", \"customer_response\": \"Buying a gift certificate does not earn points.\", \"evidence_ids\": [\"rwd-gift\"]}",
+      "input_tokens": 629,
+      "output_tokens": 40,
+      "latency_ms": 721
+    }
+  ],
+  "CMP-01": [
+    {
+      "text": "{\"decision\": \"answer\", \"value\": \"BOARD_5_SUPPORTED\", \"customer_response\": \"Dock Two Revision 2 supports Board 5.\", \"evidence_ids\": [\"cmp-dock\"]}",
+      "input_tokens": 491,
+      "output_tokens": 39,
+      "latency_ms": 920
+    }
+  ],
+  "CMP-02": [
+    {
+      "text": "{\"decision\": \"answer\", \"value\": \"PLATE_C_SUPPORTED\", \"customer_response\": \"Your Desk Display 18 supports the Plate C tabletop mount.\", \"evidence_ids\": [\"cmp-mount\"]}",
+      "input_tokens": 574,
+      "output_tokens": 42,
+      "latency_ms": 1092
+    }
+  ],
+  "CMP-03": [
+    {
+      "text": "{\"decision\": \"abstain\", \"value\": null, \"customer_response\": \"I can't confirm that from the available policy.\", \"evidence_ids\": []}",
+      "input_tokens": 593,
+      "output_tokens": 37,
+      "latency_ms": 1338
+    }
+  ],
+  "CMP-04": [
+    {
+      "text": "{\"decision\": \"clarify\", \"value\": null, \"customer_response\": \"What suffix is printed after H100 on the headset?\", \"evidence_ids\": [\"cmp-suffix\"]}",
+      "input_tokens": 463,
+      "output_tokens": 38,
+      "latency_ms": 1480
+    }
+  ],
+  "DOC-01": [
+    {
+      "text": "{\"decision\": \"answer\", \"value\": \"LARGE_PRINT_DOWNLOAD\", \"customer_response\": \"You can download the Guide 200 as a large-print PDF.\", \"evidence_ids\": [\"doc-large\"]}",
+      "input_tokens": 524,
+      "output_tokens": 40,
+      "latency_ms": 1667
+    }
+  ],
+  "DOC-02": [
+    {
+      "text": "{\"decision\": \"answer\", \"value\": \"BRAILLE_WAITLIST\", \"customer_response\": \"New requests for a Braille copy of Guide 200 go on the waitlist.\", \"evidence_ids\": [\"doc-braille-after\"]}",
+      "input_tokens": 588,
+      "output_tokens": 51,
+      "latency_ms": 1898
+    }
+  ],
+  "DOC-03": [
+    {
+      "text": "{\"decision\": \"abstain\", \"value\": null, \"customer_response\": \"I can't confirm that from the available policy.\", \"evidence_ids\": []}",
+      "input_tokens": 626,
+      "output_tokens": 36,
+      "latency_ms": 711
+    }
+  ],
+  "DOC-04": [
+    {
+      "text": "{\"decision\": \"answer\", \"value\": \"TEXT_DESCRIPTIONS\", \"customer_response\": \"The current Guide 300 describes each image in text.\", \"evidence_ids\": [\"doc-guide-current\"]}",
+      "input_tokens": 495,
+      "output_tokens": 47,
+      "latency_ms": 973
+    }
+  ],
+  "PCK-01": [
+    {
+      "text": "{\"decision\": \"answer\", \"value\": \"PICKUP_STILL_HELD\", \"customer_response\": \"Your pickup order is still being held.\", \"evidence_ids\": [\"pck-hold\"]}",
+      "input_tokens": 546,
+      "output_tokens": 38,
+      "latency_ms": 1072
+    }
+  ],
+  "PCK-02": [
+    {
+      "text": "{\"decision\": \"answer\", \"value\": \"ALTERNATE_CAN_PICK_UP\", \"customer_response\": \"Your named alternate can pick up the order with matching photo ID.\", \"evidence_ids\": [\"pck-proxy\", \"pck-type\"]}",
+      "input_tokens": 619,
+      "output_tokens": 52,
+      "latency_ms": 1326
+    }
+  ],
+  "PCK-03": [
+    {
+      "text": "{\"decision\": \"abstain\", \"value\": null, \"customer_response\": \"I can't confirm that from the available policy.\", \"evidence_ids\": []}",
+      "input_tokens": 651,
+      "output_tokens": 33,
+      "latency_ms": 1525
+    }
+  ],
+  "PCK-04": [
+    {
+      "text": "{\"decision\": \"answer\", \"value\": \"COLD_HOLD_ENDED\", \"customer_response\": \"The pickup window for your refrigerated groceries has ended.\", \"evidence_ids\": [\"pck-cold\"]}",
+      "input_tokens": 513,
+      "output_tokens": 46,
+      "latency_ms": 1697
+    }
+  ]
+}
