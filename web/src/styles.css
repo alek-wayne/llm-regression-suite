@@ -432,6 +432,9 @@ tbody tr.selected th { box-shadow: inset 3px 0 #6b76db; }
   .gate-ci { grid-column: auto; }
   .comparison-header { margin-block-end: 1.05rem; }
 }
+@media (max-width: 365px) {
+  .run-bottom { display: grid; gap: .2rem; }
+}
 @media (prefers-reduced-motion: reduce) {
   .spinner { animation: none; }
 }
