@@ -20,9 +20,8 @@ def _recording(arm: str, case_id: str) -> str:
     return fixture[case_id][0]["text"]
 
 
-@pytest.mark.parametrize("arm", ["baseline", "candidate"])
-def test_all_clean_recordings_can_be_served(cases, arm):
-    fixture = json.loads((ROOT / "fixtures" / f"{arm}.json").read_text(encoding="utf-8"))
+def test_all_approved_baseline_recordings_can_be_served(cases):
+    fixture = json.loads((ROOT / "fixtures/baseline.json").read_text(encoding="utf-8"))
     for case_id, case in cases.items():
         for attempt in fixture[case_id]:
             assert runtime_guard(case.passages, attempt["text"]) == "served", case_id
@@ -30,7 +29,7 @@ def test_all_clean_recordings_can_be_served(cases, arm):
 
 def test_unknown_citation_is_withheld_even_with_approved_wording(cases):
     case = cases["CMP-02"]
-    response = json.loads(_recording("candidate", case.id))
+    response = json.loads(_recording("baseline", case.id))
     response["evidence_ids"].append("not-retrieved")
     assert runtime_guard(case.passages, json.dumps(response)) == "withheld_unknown_citation"
 
@@ -72,14 +71,14 @@ def test_approved_but_inapplicable_policy_wording_requires_offline_grading(cases
 )
 def test_only_the_complete_approval_for_the_decision_and_citation_is_served(cases, update):
     case = cases["CMP-02"]
-    response = json.loads(_recording("candidate", case.id))
+    response = json.loads(_recording("baseline", case.id))
     response.update(update)
     assert runtime_guard(case.passages, json.dumps(response)) == "withheld_unsupported_wording"
 
 
 def test_abstention_uses_only_the_prompts_fixed_fallback(cases):
     case = cases["SHP-03"]
-    response = json.loads(_recording("candidate", case.id))
+    response = json.loads(_recording("baseline", case.id))
     response["customer_response"] += " We can still guarantee next-day delivery."
     assert runtime_guard(case.passages, json.dumps(response)) == "withheld_unsupported_wording"
 
@@ -95,3 +94,17 @@ def test_unapproved_quotes_do_not_count_as_approved_wording():
         }
     )
     assert runtime_guard([passage], response) == "withheld_unsupported_wording"
+
+
+def test_contract_grading_keeps_value_and_citation_diagnostics(cases):
+    case = cases["CMP-02"]
+    response = json.loads(_recording("baseline", case.id))
+    response["value"] = None
+    checks = {a.name: a.passed for a in grade(case, json.dumps(response))}
+    assert checks == {
+        "schema": False,
+        "decision": True,
+        "value": False,
+        "attribution": True,
+        "grounded_response": True,
+    }

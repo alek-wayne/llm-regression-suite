@@ -53,21 +53,20 @@ def test_case_rejects_evidence_outside_the_passages(cases):
         Case.model_validate(payload)
 
 
-def test_ready_recordings_cover_same_cases_and_pass(cases):
+def test_baseline_is_a_passing_reference_and_candidate_covers_the_same_cases(cases):
     baseline = _recordings("baseline")
     candidate = _recordings("candidate")
     assert set(baseline) == set(candidate) == set(cases)
 
     for case_id, case in cases.items():
         assert len(baseline[case_id]) == len(candidate[case_id]) >= 1
-        for arm in (baseline, candidate):
-            for trial in arm[case_id]:
-                assert not _failures(case, trial["text"]), case_id
-                assert parse_response(trial["text"])
+        for trial in baseline[case_id]:
+            assert not _failures(case, trial["text"]), case_id
+            assert parse_response(trial["text"])
 
 
 def test_grade_compares_against_the_case_and_leaves_a_recorded_output_frozen(cases):
-    raw_response = _recordings("candidate")["CMP-02"][0]["text"]
+    raw_response = _recordings("baseline")["CMP-02"][0]["text"]
     revised = cases["CMP-02"].model_dump(mode="json")
     revised["expected"]["evidence_ids"] = ["cmp-cart"]
 

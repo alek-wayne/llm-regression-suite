@@ -34,8 +34,8 @@ def database(monkeypatch):
             admin.execute(sql.SQL("DROP SCHEMA {} CASCADE").format(schema))
 
 
-def test_postgres_atomic_concurrent_import_and_read_only_views(database):
-    artifact = run_comparison(ROOT, scenario="regressed")
+def test_postgres_atomic_concurrent_import_and_read_only_views(database, project):
+    artifact = run_comparison(project, scenario="regressed")
 
     def ingest(_):
         with psycopg.connect(database, autocommit=True) as conn:

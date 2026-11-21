@@ -1,5 +1,4 @@
 import json
-import shutil
 from decimal import Decimal
 from pathlib import Path
 
@@ -14,14 +13,6 @@ from evalsuite.reporting import publish_report
 from evalsuite.runner import read_artifact, run_comparison, verify
 
 ROOT = Path(__file__).resolve().parents[1]
-
-
-@pytest.fixture
-def project(tmp_path):
-    for directory in ("corpus", "prompts", "fixtures"):
-        shutil.copytree(ROOT / directory, tmp_path / directory)
-    shutil.copy(ROOT / "uv.lock", tmp_path / "uv.lock")
-    return tmp_path
 
 
 def test_offline_gate_and_replay_are_reproducible_without_a_provider(
@@ -107,8 +98,8 @@ def test_replay_detects_tampering_including_relabelled_derived_values(tmp_path):
         Comparison.model_validate(document)
 
 
-def test_gate_checks_absolute_accuracy_latency_and_cost_independently():
-    artifact = run_comparison(ROOT, case_ids=["BIL-04"])
+def test_gate_checks_absolute_accuracy_latency_and_cost_independently(project):
+    artifact = run_comparison(project, case_ids=["BIL-04"])
     case = artifact.cases[0].model_copy(deep=True)
     case.candidate[0].latency_ms = 5001
     case.candidate[0].cost_usd = "0.01000001"
