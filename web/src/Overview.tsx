@@ -13,9 +13,10 @@ interface MetricProps {
   delta: string | null;
   tone?: "good" | "bad" | "quiet";
   accuracy?: [number | null, number | null];
+  note?: string;
 }
 
-function Metric({ title, baseline, candidate, delta, tone = "quiet", accuracy }: MetricProps) {
+function Metric({ title, baseline, candidate, delta, tone = "quiet", accuracy, note }: MetricProps) {
   return (
     <section className="metric panel">
       <header className="metric-header">
@@ -33,6 +34,7 @@ function Metric({ title, baseline, candidate, delta, tone = "quiet", accuracy }:
           ))}
         </div>
       )}
+      {note && <p className="metric-note muted">{note}</p>}
     </section>
   );
 }
@@ -41,6 +43,7 @@ export function Overview({ comparison }: { comparison: Comparison }) {
   const { summary } = comparison;
   const accuracyTone = (summary.delta ?? 0) < 0 ? "bad" : (summary.delta ?? 0) > 0 ? "good" : "quiet";
   const accuracyDelta = summary.delta === null ? null : formatPoints(summary.delta);
+  const candidatePassedCases = summary.arms?.candidate.all_trials_passed_cases;
   const baselineCost = summary.arms?.baseline.unknown_cost_trials ? null : summary.baseline_cost_usd;
   const candidateCost = summary.arms?.candidate.unknown_cost_trials ? null : summary.candidate_cost_usd;
   const hasMissingMetrics = [summary.baseline_accuracy, summary.candidate_accuracy, summary.baseline_p95_ms,
@@ -69,7 +72,9 @@ export function Overview({ comparison }: { comparison: Comparison }) {
           baseline={formatAccuracy(summary.baseline_accuracy)}
           candidate={formatAccuracy(summary.candidate_accuracy)}
           delta={accuracyDelta} tone={accuracyTone}
-          accuracy={[summary.baseline_accuracy, summary.candidate_accuracy]} />
+          accuracy={[summary.baseline_accuracy, summary.candidate_accuracy]}
+          note={candidatePassedCases === undefined ? undefined
+            : `${candidatePassedCases}/${summary.case_count} ${summary.case_count === 1 ? "case" : "cases"} passed every candidate trial.`} />
         <Metric title="P95 latency"
           baseline={formatLatency(summary.baseline_p95_ms)}
           candidate={formatLatency(summary.candidate_p95_ms)}

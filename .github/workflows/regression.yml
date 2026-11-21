@@ -112,3 +112,8 @@ jobs:
           uv run --locked python -m evalsuite demo
           npm ci --prefix web
           npm run build --prefix web
+      - name: Test console navigation in Chromium
+        working-directory: web
+        run: |
+          npm exec -- playwright install --with-deps --only-shell chromium
+          npm run test:navigation

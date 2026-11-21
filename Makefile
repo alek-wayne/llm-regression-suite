@@ -25,7 +25,7 @@ preview: demo
 db-demo: reports
 	DB_PORT=$(DB_PORT) docker compose up -d --wait db
 	DATABASE_URL="$(DEMO_DATABASE_URL)" $(SUITE) migrate
-	DATABASE_URL="$(DEMO_DATABASE_URL)" $(SUITE) import artifacts/demo/repaired/comparison.json artifacts/demo/regressed/comparison.json
+	DATABASE_URL="$(DEMO_DATABASE_URL)" $(SUITE) import artifacts/demo/regressed/comparison.json artifacts/demo/repaired/comparison.json
 	npm ci --prefix web
 	VITE_API_BASE=/api npm run build --prefix web -- --outDir dist-db
 	DATABASE_URL="$(DEMO_DATABASE_URL)" $(SUITE) serve --port $(PORT) --dist web/dist-db

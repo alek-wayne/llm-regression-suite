@@ -6,16 +6,16 @@ A support assistant can give the right product code, cite the wrong manual, and 
 
 ## A regression you can reproduce
 
-The corpus contains 48 explicitly labeled questions across 12 fictional store-policy families. Two fixture comparisons run the same graders, runtime guard, measurements, and gate as the Anthropic adapter. The fixture responses, timing, and token counts are synthetic. The grades below were computed by the suite.
+The console opens on the repaired run. Both examples use the same 48 labeled questions across 12 fictional store-policy families and exercise the same graders, runtime guard, measurements, and gate as the Anthropic adapter. The fixture responses, timing, and token counts are synthetic. The suite computes the grades.
 
 | Fixture comparison | Baseline | Candidate | Accuracy change | Gate |
 | --- | ---: | ---: | ---: | --- |
-| Eight regressions introduced | 48/48 | 40/48 | −16.67 percentage points | FAIL |
-| Repaired responses | 48/48 | 48/48 | 0.00 percentage points | PASS |
+| [Repaired candidate](https://alekwayne.dev/llm-regression-suite/#comparison=repaired) | 48/48 | 48/48 | 0.00 percentage points | PASS |
+| [Seeded regression](https://alekwayne.dev/llm-regression-suite/#comparison=regressed) | 48/48 | 40/48 | −16.67 percentage points | FAIL |
 
-In **CMP-02**, the question asks whether a Desk Display accepts a Plate C mount. The candidate returns the correct code but cites the Cart Display policy and promises compatibility with every other accessory. JSON structure, decision, and value all pass. Attribution and approved wording fail. The runtime guard withholds the reply. **RET-04** illustrates a different failure. Its quote is genuine, but the rule applies to a different purchaser. The offline grader catches the scope error. [Inspect CMP-02](https://alekwayne.dev/llm-regression-suite/#case=CMP-02)
+In the seeded run, **CMP-02** asks whether a Desk Display accepts a Plate C mount. The candidate returns the correct code but cites the Cart Display policy and promises compatibility with every other accessory. JSON structure, decision, and value all pass. Attribution and approved wording fail. The runtime guard withholds the reply. In the repaired run, the candidate cites the Desk Display policy and passes all checks. **RET-04** illustrates a different failure. Its quote is genuine, but the rule applies to a different purchaser. The offline grader catches the scope error. [Inspect the seeded CMP-02](https://alekwayne.dev/llm-regression-suite/#comparison=regressed&case=CMP-02) · [Inspect the repaired CMP-02](https://alekwayne.dev/llm-regression-suite/#comparison=repaired&case=CMP-02)
 
-[![Regression console showing a failed gate and the affected cases](docs/console.png)](https://alekwayne.dev/llm-regression-suite/)
+[![Regression console showing the repaired candidate and its passing release gate](docs/console.png)](https://alekwayne.dev/llm-regression-suite/)
 
 ## Run it locally
 
@@ -84,9 +84,13 @@ make db-demo
 Docker Compose binds the demo database to loopback on port 5488. Override ports with `make db-demo DB_PORT=5489 PORT=8766`. A transactional importer stores the verified artifact, its trials, and individual assertions. Identical concurrent imports produce one copy. The `arm_usage` SQL view independently calculates p95 and known cost. The read-only FastAPI service exposes comparison history, complete comparisons, and individual cases. The public console reads the same artifact format as static JSON.
 
 ```sh
-# Run the full local checks with isolated test schemas in the demo database.
+# Run the evaluator, PostgreSQL, and console build checks.
 docker compose up -d --wait db
 TEST_DATABASE_URL=postgresql://eval:eval@127.0.0.1:5488/evalsuite make check
+
+# Test the built console in desktop and mobile Chromium.
+npm exec --prefix web -- playwright install --only-shell chromium
+npm run test:navigation --prefix web
 ```
 
 ## Anthropic integration
