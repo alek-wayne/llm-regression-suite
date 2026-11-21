@@ -2,20 +2,20 @@
 
 A support assistant can give the right product code, cite the wrong manual, and promise a customer more than the policy allows. This Python evaluation harness tests those failures separately and gives GitHub Actions a release decision with the evidence behind it.
 
-[Open the investigation console](https://alek-wayne.github.io/llm-regression-suite/) · [Inspect the CI runs](https://github.com/alek-wayne/llm-regression-suite/actions/workflows/regression.yml)
+[Open the investigation console](https://alekwayne.dev/llm-regression-suite/) · [Inspect the CI runs](https://github.com/alek-wayne/llm-regression-suite/actions/workflows/regression.yml)
 
 ## A regression you can reproduce
 
-The corpus contains 48 hand-labeled questions across 12 fictional store-policy families. Two fixture comparisons run the same graders, runtime guard, measurements, and gate as the Anthropic adapter. The fixture responses, timing, and token counts are synthetic. The grades below were computed by the suite.
+The corpus contains 48 explicitly labeled questions across 12 fictional store-policy families. Two fixture comparisons run the same graders, runtime guard, measurements, and gate as the Anthropic adapter. The fixture responses, timing, and token counts are synthetic. The grades below were computed by the suite.
 
 | Fixture comparison | Baseline | Candidate | Accuracy change | Gate |
 | --- | ---: | ---: | ---: | --- |
 | Eight regressions introduced | 48/48 | 40/48 | −16.67 percentage points | FAIL |
 | Repaired responses | 48/48 | 48/48 | 0.00 percentage points | PASS |
 
-Open **Guardrail regression** and search for **CMP-02**. The question asks whether a Desk Display accepts a Plate C mount. The candidate returns the correct code but cites the Cart Display policy and promises compatibility with every other accessory. JSON structure, decision, and value all pass. Attribution and approved wording fail. The runtime guard withholds the reply. **RET-04** illustrates a different failure. Its quote is genuine, but the rule applies to a different purchaser. The offline grader catches the scope error.
+In **CMP-02**, the question asks whether a Desk Display accepts a Plate C mount. The candidate returns the correct code but cites the Cart Display policy and promises compatibility with every other accessory. JSON structure, decision, and value all pass. Attribution and approved wording fail. The runtime guard withholds the reply. **RET-04** illustrates a different failure. Its quote is genuine, but the rule applies to a different purchaser. The offline grader catches the scope error. [Inspect CMP-02](https://alekwayne.dev/llm-regression-suite/#case=CMP-02)
 
-[![Regression console showing a failed gate and the affected cases](docs/console.png)](https://alek-wayne.github.io/llm-regression-suite/)
+[![Regression console showing a failed gate and the affected cases](docs/console.png)](https://alekwayne.dev/llm-regression-suite/)
 
 ## Run it locally
 
@@ -40,6 +40,8 @@ uv run --locked python -m evalsuite compare --scenario regressed --out artifacts
 uv run --locked python -m evalsuite compare --case CMP-02 --scenario regressed
 uv run --locked python -m evalsuite replay artifacts/failure/comparison.json
 ```
+
+The public demonstration pull request changes the candidate recordings, then restores them. Its first revision fails the accuracy gate. The repair also adds a grader test for a correct answer citing the wrong retrieved document. [Failed GitHub Actions run](https://github.com/alek-wayne/llm-regression-suite/actions/runs/44848877522) · [Repair checks](https://github.com/alek-wayne/llm-regression-suite/pull/1/checks) · [Download the replayable reports](https://github.com/alek-wayne/llm-regression-suite/releases/tag/v1.0.0)
 
 ## What the suite measures
 

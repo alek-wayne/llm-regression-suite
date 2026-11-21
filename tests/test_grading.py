@@ -150,3 +150,11 @@ def test_serving_parser_rejects_incoherent_response_without_a_case(update, messa
     response.update(update)
     with pytest.raises(ValueError, match=message):
         parse_response(json.dumps(response))
+
+
+def test_correct_answer_and_wording_still_require_the_matching_source(cases):
+    case = cases["CMP-02"]
+    reply = json.loads(_recordings("baseline")[case.id][0]["text"])
+    assert "cmp-cart" in {passage.id for passage in case.passages}
+    reply["evidence_ids"] = ["cmp-cart"]
+    assert _failures(case, json.dumps(reply)) == {"attribution"}
