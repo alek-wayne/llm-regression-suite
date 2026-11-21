@@ -1,4 +1,7 @@
-import re
+import json
+from functools import cache
+from hashlib import sha256
+from importlib.resources import files
 from typing import Literal
 
 from .domain import Passage
@@ -12,14 +15,23 @@ GuardrailResult = Literal[
 ]
 
 _ABSTENTION = "I can't confirm that from the available policy."
-_APPROVALS = {
-    "answer": re.compile(r'\bapproved reply: "([^"]+)"'),
-    "clarify": re.compile(r'\bapproved question: "([^"]+)"'),
-}
+
+
+@cache
+def _load_approvals() -> frozenset[tuple[str, str, str, str]]:
+    resource = files("evalsuite").joinpath("policy_approvals.json")
+    registry = json.loads(resource.read_text(encoding="utf-8"))
+    return frozenset(
+        (passage_id, digest, decision, wording)
+        for passage_id, revisions in registry.items()
+        for digest, decisions in revisions.items()
+        for decision, wordings in decisions.items()
+        for wording in wordings
+    )
 
 
 def runtime_guard(passages: list[Passage], raw_text: str) -> GuardrailResult:
-    """Check whether the wording may be served using only the retrieved passages."""
+    """Allow reviewed wording from the exact retrieved passage revision."""
     try:
         response = parse_response(raw_text)
     except ValueError:
@@ -32,9 +44,15 @@ def runtime_guard(passages: list[Passage], raw_text: str) -> GuardrailResult:
     if response.decision == "abstain":
         approved = response.customer_response == _ABSTENTION
     else:
-        pattern = _APPROVALS[response.decision]
+        approvals = _load_approvals()
         approved = any(
-            response.customer_response in pattern.findall(passage_text_by_id[passage_id])
+            (
+                passage_id,
+                sha256(passage_text_by_id[passage_id].encode("utf-8")).hexdigest(),
+                response.decision,
+                response.customer_response,
+            )
+            in approvals
             for passage_id in response.evidence_ids
         )
     return "served" if approved else "withheld_unsupported_wording"

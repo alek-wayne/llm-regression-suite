@@ -224,6 +224,29 @@ def test_actual_cost_releases_unused_reservation(case, mocked_client):
     assert calls.count("/v1/messages") == 2
 
 
+def test_global_request_served_in_us_uses_standard_price_and_continues(case, mocked_client):
+    calls = []
+
+    def reply(request):
+        if request.url.path.endswith("/count_tokens"):
+            return httpx2.Response(200, json={"input_tokens": 123})
+        body = json.loads(request.content)
+        calls.append((body["system"], body["inference_geo"]))
+        return message_response(
+            usage={"input_tokens": 120, "output_tokens": 18, "inference_geo": "us"}
+        )
+
+    budget = cost_usd(INPUT_LIMIT, OUTPUT_LIMIT) + Decimal("0.000021")
+    provider = LiveProvider(budget, client=mocked_client(reply))
+    for prompt in ("Baseline instructions", "Candidate instructions"):
+        result = provider.collect(case, prompt)
+        assert result["status"] == "ok"
+        assert result["cost_usd"] == "0.000021"
+        assert result["diagnostics"] == {"inference_geo": "us"}
+
+    assert calls == [("Baseline instructions", "global"), ("Candidate instructions", "global")]
+
+
 def test_unexpected_billable_usage_is_reported_and_stops_dispatch(case, mocked_client):
     calls = []
 

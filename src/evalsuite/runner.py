@@ -19,6 +19,7 @@ from .evidence import (
     Comparison,
     Observation,
     Policy,
+    RateCard,
     Record,
     Trial,
     artifact_id,
@@ -27,7 +28,7 @@ from .evidence import (
 )
 from .grading import ASSERTION_NAMES, Assertion, grade
 from .guardrails import runtime_guard
-from .metrics import summarize
+from .metrics import METRICS_VERSION, summarize
 from .provider import MODEL, RATE_INPUT, RATE_OUTPUT, LiveProvider, cost_usd, request_body
 
 Mode = Literal["fixture", "live"]
@@ -174,10 +175,11 @@ class Fixtures:
             row = Fixture.model_validate(rows[index - 1])
         except ValueError:
             return failed_observation(f"Invalid frozen observation at {case.id}/{arm}/{index}.")
+        has_text = bool(row.text.strip())
         return Observation(
             **row.model_dump(),
-            status="ok",
-            error=None,
+            status="ok" if has_text else "invalid",
+            error=None if has_text else "Recorded output contained no answer text.",
             model=MODEL,
             request_id=None,
             stop_reason="end_turn",
@@ -227,6 +229,28 @@ def run_comparison(
             or c.expected != baseline_cases[c.id].expected
             or c.cluster != baseline_cases[c.id].cluster
         }
+    # Capture the inputs before dispatch. A missing lockfile must fail before a paid call.
+    lock_digest = sha256((root / "uv.lock").read_bytes()).hexdigest()
+    module_dir = Path(__file__).parent
+    instrument_digest = digest(
+        {
+            name: sha256((module_dir / name).read_bytes()).hexdigest()
+            for name in (
+                "domain.py",
+                "grading.py",
+                "guardrails.py",
+                "policy_approvals.json",
+                "provider.py",
+                "evidence.py",
+                "metrics.py",
+                "runner.py",
+            )
+        }
+    )
+    candidate_state = source_state(root)
+    baseline_state = (
+        candidate_state if root.resolve() == reference.resolve() else source_state(reference)
+    )
     started = datetime.now(UTC) if mode == "live" else None
     fixtures = (
         Fixtures(root, reference, scenario, {c.id for c in all_cases})
@@ -283,37 +307,20 @@ def run_comparison(
             title = "Guardrail regression"
         else:
             title = "Candidate comparison"
-    module_dir = Path(__file__).parent
-    candidate_state = source_state(root)
-    baseline_state = (
-        candidate_state if root.resolve() == reference.resolve() else source_state(reference)
-    )
     provenance = {
         "model": MODEL,
+        "metrics_version": METRICS_VERSION,
         "sdk_version": version("anthropic"),
         "baseline_revision": baseline_state[0],
         "candidate_revision": candidate_state[0],
         "baseline_inputs_dirty": baseline_state[1],
         "candidate_inputs_dirty": candidate_state[1],
-        "instrument_sha256": digest(
-            {
-                name: sha256((module_dir / name).read_bytes()).hexdigest()
-                for name in (
-                    "domain.py",
-                    "grading.py",
-                    "guardrails.py",
-                    "provider.py",
-                    "evidence.py",
-                    "metrics.py",
-                    "runner.py",
-                )
-            }
-        ),
+        "instrument_sha256": instrument_digest,
         "prompt_sha256": {
             arm: sha256(prompt.encode()).hexdigest() for arm, prompt in prompts.items()
         },
         "corpus_sha256": digest([case.model_dump(mode="json") for case in all_cases]),
-        "dependency_lock_sha256": sha256((root / "uv.lock").read_bytes()).hexdigest(),
+        "dependency_lock_sha256": lock_digest,
         "scenario": scenario if fixtures else "live",
         "started_at": started.isoformat() if started else None,
         "finished_at": datetime.now(UTC).isoformat() if started else None,
@@ -352,13 +359,19 @@ def verify(artifact: Comparison) -> None:
     """Verify content identity and regrade every arm using only embedded observations."""
     if artifact.id != artifact_id(artifact.model_dump(mode="json")):
         raise ValueError("Artifact content hash differs from its comparison ID")
-    rates = artifact.provenance["rate_card"]
-    input_rate = money(rates["per_million_input"])
-    output_rate = money(rates["per_million_output"])
+    rates = RateCard.model_validate(artifact.provenance.get("rate_card"))
+    if rates.model != artifact.provenance.get("model"):
+        raise ValueError("Recorded model does not match the model on the rate card")
+    input_rate = money(rates.per_million_input)
+    output_rate = money(rates.per_million_output)
     fields = set(Observation.model_fields)
     for case in artifact.cases:
         for arm in ARMS:
             for trial in getattr(case, arm):
+                if trial.status != "error" and trial.model != rates.model:
+                    raise ValueError(
+                        f"Delivered model differs from the rate card at {case.id}/{arm}/{trial.index}"
+                    )
                 if (
                     trial.status != "error"
                     and trial.cost_usd is not None
@@ -366,8 +379,8 @@ def verify(artifact: Comparison) -> None:
                     and trial.output_tokens is not None
                 ):
                     multiplier = (
-                        rates["long_input_multiplier"]
-                        if trial.input_tokens > rates["input_tier_break"]
+                        rates.long_input_multiplier
+                        if trial.input_tokens > rates.input_tier_break
                         else 1
                     )
                     charge = (
@@ -382,7 +395,14 @@ def verify(artifact: Comparison) -> None:
                 observed = Observation.model_validate(trial.model_dump(include=fields))
                 if evaluate(case, observed, trial.index) != trial:
                     raise ValueError(f"Replayed grading differs at {case.id}/{arm}/{trial.index}")
-    if summarize(artifact.cases, artifact.policy) != artifact.summary:
+    if (
+        summarize(
+            artifact.cases,
+            artifact.policy,
+            metrics_version=artifact.provenance.get("metrics_version", 1),
+        )
+        != artifact.summary
+    ):
         raise ValueError("Replayed verdict or metrics differ from the recorded summary")
 
 

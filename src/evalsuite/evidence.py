@@ -36,6 +36,18 @@ class Policy(Record):
         return value
 
 
+class RateCard(BaseModel):
+    """Fields needed to replay standard USD charges, including older rate cards."""
+
+    model_config = ConfigDict(strict=True)
+    model: str = Field(min_length=1)
+    currency: Literal["USD"]
+    per_million_input: str
+    per_million_output: str
+    input_tier_break: Count
+    long_input_multiplier: int = Field(ge=1)
+
+
 def money(value: str) -> Decimal:
     try:
         amount = Decimal(value)
@@ -66,6 +78,8 @@ class Observation(Record):
             money(self.cost_usd)
         if self.status == "ok" and self.error is not None:
             raise ValueError("A successful delivery cannot have an error")
+        if self.status == "ok" and self.stop_reason != "end_turn":
+            raise ValueError("A completed response requires end_turn")
         if self.status != "ok" and not self.error:
             raise ValueError("Unsuccessful deliveries require a reason")
         return self

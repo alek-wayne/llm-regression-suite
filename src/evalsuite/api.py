@@ -1,6 +1,7 @@
 """Read-only HTTP views of imported comparison evidence."""
 
 from collections.abc import Iterator
+from importlib.metadata import version
 from pathlib import Path
 from typing import Annotated
 
@@ -10,22 +11,33 @@ from fastapi.staticfiles import StaticFiles
 
 from .storage import database_url
 
+STORAGE_UNAVAILABLE = "Comparison storage is unavailable"
+
 
 def read_connection() -> Iterator[psycopg.Connection]:
     try:
         conn = psycopg.connect(database_url(), connect_timeout=4)
         conn.read_only = True
     except (psycopg.Error, ValueError):
-        raise HTTPException(503, "Comparison storage is unavailable") from None
-    with conn:
-        yield conn
+        raise HTTPException(503, STORAGE_UNAVAILABLE) from None
+    try:
+        with conn:
+            try:
+                yield conn
+            except psycopg.errors.UndefinedTable:
+                conn.rollback()
+                if conn.execute("SELECT to_regclass('comparisons')").fetchone() != (None,):
+                    raise
+                raise HTTPException(503, "Comparison storage requires evalsuite migrate") from None
+    except psycopg.OperationalError:
+        raise HTTPException(503, STORAGE_UNAVAILABLE) from None
 
 
-ReadConnection = Annotated[psycopg.Connection, Depends(read_connection)]
+ReadConnection = Annotated[psycopg.Connection, Depends(read_connection, scope="function")]
 
 
 def create_app(dist: Path | None = None) -> FastAPI:
-    app = FastAPI(title="LLM Regression Suite", version="1.0.0")
+    app = FastAPI(title="LLM Regression Suite", version=version("llm-regression-suite"))
 
     @app.get("/api/comparisons")
     def history(conn: ReadConnection) -> dict:
