@@ -1,0 +1,22 @@
+{
+  "comparisons": [
+    {
+      "id": "fixture-e5397d8544f094a0d1f4e0fa",
+      "title": "Guardrail regression",
+      "mode": "fixture",
+      "verdict": "FAIL",
+      "delta": -0.1666666667,
+      "case_count": 48,
+      "artifact": "fixture-e5397d8544f094a0d1f4e0fa.json"
+    },
+    {
+      "id": "fixture-3c63478f741725083b3939bf",
+      "title": "Repaired candidate",
+      "mode": "fixture",
+      "verdict": "PASS",
+      "delta": 0.0,
+      "case_count": 48,
+      "artifact": "fixture-3c63478f741725083b3939bf.json"
+    }
+  ]
+}
