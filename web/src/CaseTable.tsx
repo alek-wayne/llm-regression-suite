@@ -59,10 +59,7 @@ export function CaseTable({ cases, selected, getLink, openCase }: CaseTableProps
           <h2 id="cases-heading">Case results</h2>
           <p className="muted count-text" role="status">{matches.length} of {cases.length} {cases.length === 1 ? "case" : "cases"}</p>
         </div>
-        <div className="section-actions">
-          {(query || status !== "any" || category) && <button type="button" className="quiet-button" onClick={resetFilters}>Clear filters</button>}
-          {selected && <a className="quiet-button inspect-link" href={getLink(selected)} onClick={openCase}>Inspect {selected}</a>}
-        </div>
+        {(query || status !== "any" || category) && <button type="button" className="quiet-button" onClick={resetFilters}>Clear filters</button>}
       </header>
       {cases.length > 0 && (
         <div className="filters">

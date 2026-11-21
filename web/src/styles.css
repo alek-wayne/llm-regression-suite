@@ -148,6 +148,7 @@ button, a, input, select, summary, [tabindex] { outline-offset: 4px; }
   font-size: .91rem;
 }
 .comparison-meta p { flex-basis: 100%; }
+.case-inspect-action { margin-block-start: .85rem; }
 .run-id, .case-id { font-family: var(--mono); font-weight: 650; color: var(--accent); }
 
 .panel { min-width: 0; background: var(--surface); border: 1px solid var(--line); border-radius: .85rem; box-shadow: 0 2px 4px #1b2d4907; }
@@ -203,6 +204,7 @@ button, a, input, select, summary, [tabindex] { outline-offset: 4px; }
 .metric-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .85rem; }
 .metric { padding: 1rem 1.05rem; }
 .metric-note { font-size: .84rem; line-height: 1.4; }
+.metric .metric-note { margin-block-start: .65rem; }
 .metric-header { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: .35rem; margin-block-end: .75rem; }
 .metric-header h2 { font-size: .95rem; font-weight: 685; white-space: nowrap; }
 .metric-delta { max-width: 100%; color: var(--muted); font-family: var(--mono); font-size: .82rem; font-weight: 700; overflow-wrap: anywhere; }
@@ -237,7 +239,6 @@ button, a, input, select, summary, [tabindex] { outline-offset: 4px; }
   line-height: 1.25;
 }
 .quiet-button:hover { background: var(--accent-soft); }
-.inspect-link { color: var(--accent); background: #f5f6ff; border-color: #ccd2f4; }
 .action-button { background: #394ba7; color: #fff; border-color: #394ba7; }
 .action-button:hover { background: #2d3c8b; }
 .filters { display: grid; grid-template-columns: minmax(10rem, 1.65fr) minmax(9rem, 1fr) minmax(8.5rem, .85fr); gap: .65rem; margin: 0 1.15rem 1rem; }
@@ -293,7 +294,7 @@ tbody tr.selected th { box-shadow: inset 3px 0 #6b76db; }
 .pass-rate small { color: #a2143e; font-family: system-ui, sans-serif; font-size: .77rem; }
 .rate-slash { color: #5d6980; }
 .list-empty, .case-notice { padding: .85rem 1.15rem 1.1rem; line-height: 1.5; }
-.case-notice { margin-block-end: .85rem; background: #fcf5df; color: #78500e; border-radius: .5rem; overflow-wrap: anywhere; }
+.case-notice { margin-block-start: .85rem; background: #fcf5df; color: #78500e; border-radius: .5rem; overflow-wrap: anywhere; }
 
 .inspection { overflow-wrap: anywhere; }
 .inspection .section-header { border-block-end: 1px solid var(--line); }
@@ -396,6 +397,8 @@ tbody tr.selected th { box-shadow: inset 3px 0 #6b76db; }
   .sidebar { position: static; display: block; height: auto; padding: 1rem 1.15rem .8rem; }
   .run-history { margin-block-start: 1.05rem; max-height: 18rem; }
   .run-history ul { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .run-history li { display: grid; }
+  .run-link { grid-template-rows: auto 1fr auto; }
   .history-heading { margin-block-end: .55rem; }
   .sidebar-footer { display: none; }
   .workspace-content { padding-top: 1.55rem; }

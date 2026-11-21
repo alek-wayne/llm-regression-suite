@@ -83,13 +83,14 @@ def main(argv: list[str] | None = None) -> int:
             return EXIT_CODE[artifact.summary.verdict]
         if args.action == "demo":
             entries = []
-            for scenario, expected in (("regressed", "FAIL"), ("repaired", "PASS")):
+            for scenario, title, expected in (
+                ("repaired", "Repaired candidate", "PASS"),
+                ("regressed", "Seeded regression", "FAIL"),
+            ):
                 artifact = run_comparison(
                     root,
                     scenario=scenario,
-                    title="Repaired candidate"
-                    if scenario == "repaired"
-                    else "Guardrail regression",
+                    title=title,
                 )
                 publish_report(artifact, args.out / scenario)
                 if artifact.summary.verdict != expected:
@@ -99,7 +100,7 @@ def main(argv: list[str] | None = None) -> int:
                 write_json(
                     args.web_data / (artifact.id + ".json"), artifact.model_dump(mode="json")
                 )
-                entries.append(index_entry(artifact))
+                entries.append({**index_entry(artifact), "scenario": scenario})
                 print(
                     f"{scenario}: {expected} · {artifact.summary.case_count} cases · {args.out / scenario / 'report.md'}"
                 )

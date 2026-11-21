@@ -10,13 +10,15 @@
     "dev": "node scripts/vite.mjs dev",
     "typecheck": "tsc --noEmit",
     "build": "npm run typecheck && node scripts/vite.mjs build",
-    "preview": "node scripts/vite.mjs preview"
+    "preview": "node scripts/vite.mjs preview",
+    "test:navigation": "playwright test"
   },
   "dependencies": {
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.1",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "typescript": "~5.9.3",

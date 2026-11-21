@@ -9,6 +9,7 @@ export interface ComparisonEntry {
   delta: number | null;
   case_count: number;
   artifact: string;
+  scenario?: "repaired" | "regressed";
 }
 
 export interface Assertion {
@@ -59,6 +60,7 @@ export interface EvaluationCase {
 
 interface ArmSummary {
   unknown_cost_trials?: number;
+  all_trials_passed_cases?: number;
 }
 
 export interface Summary {
@@ -102,7 +104,9 @@ function isList<T>(value: unknown, validate: (item: unknown) => item is T): valu
 function isEntry(value: unknown): value is ComparisonEntry {
   return isRecord(value) && isText(value.id) && isText(value.title)
     && isMode(value.mode) && isVerdict(value.verdict) && isNullableNumber(value.delta)
-    && isNumber(value.case_count) && isText(value.artifact);
+    && isNumber(value.case_count) && isText(value.artifact)
+    && (value.scenario === undefined || (value.mode === "fixture"
+      && (value.scenario === "repaired" || value.scenario === "regressed")));
 }
 
 function isAssertion(value: unknown): value is Assertion {
@@ -137,8 +141,12 @@ function isCase(value: unknown): value is EvaluationCase {
     && isList(value.baseline, isTrial) && isList(value.candidate, isTrial);
 }
 
-function isArmSummary(value: unknown): value is ArmSummary {
-  return isRecord(value) && (value.unknown_cost_trials === undefined || isNumber(value.unknown_cost_trials));
+function isArmSummary(value: unknown, caseCount: number): value is ArmSummary {
+  if (!isRecord(value)) return false;
+  const passedCases = value.all_trials_passed_cases;
+  return (value.unknown_cost_trials === undefined || isNumber(value.unknown_cost_trials))
+    && (passedCases === undefined || (isNumber(passedCases) && Number.isInteger(passedCases)
+      && passedCases >= 0 && passedCases <= caseCount));
 }
 
 function isSummary(value: unknown): value is Summary {
@@ -148,7 +156,8 @@ function isSummary(value: unknown): value is Summary {
     && isNullableNumber(value.candidate_p95_ms) && isNullableText(value.baseline_cost_usd)
     && isNullableText(value.candidate_cost_usd)
     && (value.ci95 === null || (isList(value.ci95, isNumber) && value.ci95.length === 2))
-    && (value.arms === undefined || (isRecord(value.arms) && isArmSummary(value.arms.baseline) && isArmSummary(value.arms.candidate)));
+    && (value.arms === undefined || (isRecord(value.arms)
+      && isArmSummary(value.arms.baseline, value.case_count) && isArmSummary(value.arms.candidate, value.case_count)));
 }
 
 function isComparison(value: unknown): value is Comparison {
@@ -160,7 +169,8 @@ const configuredApi = import.meta.env.VITE_API_BASE?.trim().replace(/\/+$/, "");
 const apiRoot = configuredApi && (configuredApi.endsWith("/api") ? configuredApi : `${configuredApi}/api`);
 const indexUrl = new URL("data/index.json", new URL(import.meta.env.BASE_URL, window.location.href));
 
-export const sourceLabel = apiRoot ? "Read-only API" : "Local JSON artifacts";
+export const usesStaticArtifacts = !apiRoot;
+export const sourceLabel = usesStaticArtifacts ? "Static JSON artifacts" : "Read-only API";
 
 async function readJson(url: string | URL, signal: AbortSignal): Promise<unknown> {
   const response = await fetch(url, {
@@ -187,7 +197,7 @@ export async function loadIndex(signal: AbortSignal): Promise<ComparisonEntry[]>
   if (!isRecord(data) || !isList(data.comparisons, isEntry)) {
     throw new Error("The comparison index has an unsupported format.");
   }
-  return data.comparisons;
+  return usesStaticArtifacts ? data.comparisons : data.comparisons.map(({ scenario, ...entry }) => entry);
 }
 
 export async function loadComparison(entry: ComparisonEntry, signal: AbortSignal): Promise<Comparison> {
