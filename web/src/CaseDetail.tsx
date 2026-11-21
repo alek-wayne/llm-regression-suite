@@ -21,8 +21,10 @@ function passCount(trials: Trial[]) {
 }
 
 function TrialResult({ title, trial, trials }: { title: string; trial: Trial | undefined; trials: Trial[] }) {
-  const failed = trial?.assertions.filter((assertion) => !assertion.passed) ?? [];
-  const passed = trial?.assertions.filter((assertion) => assertion.passed) ?? [];
+  const scored = trial?.status !== "error";
+  const assertions = scored ? trial?.assertions ?? [] : [];
+  const failed = assertions.filter((assertion) => !assertion.passed);
+  const passed = assertions.filter((assertion) => assertion.passed);
   const status = trial?.status === "error" ? "Trial error"
     : trial?.status === "invalid" ? "Invalid output" : trial?.passed ? "Passed" : "Failed";
 
@@ -41,7 +43,7 @@ function TrialResult({ title, trial, trials }: { title: string; trial: Trial | u
             <h4>Raw provider output</h4>
             {trial.error && <p className="provider-error"><Icon name="alert" /><span>{trial.error}</span></p>}
             {trial.text
-              ? <pre className="raw-output" tabIndex={0} aria-label={`${title} raw provider output`}><code>{trial.text}</code></pre>
+              ? <pre className="raw-output" tabIndex={0} role="region" aria-label={`${title} raw provider output`}><code>{trial.text}</code></pre>
               : <p className="no-output">No output returned.</p>}
           </div>
           <div className="trial-content">
@@ -58,7 +60,7 @@ function TrialResult({ title, trial, trials }: { title: string; trial: Trial | u
             </dl>
           </div>
           <div className="trial-content assertion-content">
-            <h4>Assertions <span className="assertion-count">{passed.length} / {trial.assertions.length} passed</span></h4>
+            <h4>Assertions{assertions.length > 0 && <span className="assertion-count">{passed.length} / {assertions.length} passed</span>}</h4>
             {failed.length > 0 && (
               <ul className="assertions">
                 {failed.map((assertion, index) => (
@@ -82,7 +84,9 @@ function TrialResult({ title, trial, trials }: { title: string; trial: Trial | u
                 </ul>
               </details>
             )}
-            {trial.assertions.length === 0 && <p className="muted">No assertion results recorded.</p>}
+            {assertions.length === 0 && <p className="muted">{scored
+              ? "No assertion results recorded."
+              : "Assertions were unavailable for this trial."}</p>}
           </div>
         </>
       ) : <p className="missing-trial muted">The selected trial is unavailable for {title.toLowerCase()}.</p>}
@@ -100,9 +104,10 @@ export function CaseDetail({ evaluationCase, headingRef, link }: CaseDetailProps
   const { baseline, candidate, expected, passages } = evaluationCase;
   const indices = [...new Set([...baseline, ...candidate].map((trial) => trial.index))].sort((first, second) => first - second);
   const baselinePassed = new Set(baseline.filter((trial) => trial.passed).map((trial) => trial.index));
-  const regression = candidate.find((trial) => !trial.passed && baselinePassed.has(trial.index));
-  const failedTrial = candidate.find((trial) => !trial.passed);
-  const [chosenIndex, setChosenIndex] = useState(regression?.index ?? failedTrial?.index ?? indices[0]);
+  const candidateFailures = candidate.filter((trial) => trial.status !== "error" && !trial.passed);
+  const regression = candidateFailures.find((trial) => baselinePassed.has(trial.index));
+  const trialError = candidate.find((trial) => trial.status === "error") ?? baseline.find((trial) => trial.status === "error");
+  const [chosenIndex, setChosenIndex] = useState(regression?.index ?? candidateFailures[0]?.index ?? trialError?.index ?? indices[0]);
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "unavailable">("idle");
 
   async function copyCaseLink() {

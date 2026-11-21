@@ -213,8 +213,13 @@ export async function loadComparison(entry: ComparisonEntry, signal: AbortSignal
     url = artifactUrl;
   }
   const data = await readJson(url, signal);
-  if (!isComparison(data) || data.id !== entry.id || data.mode !== entry.mode) {
-    throw new Error("The selected comparison has an unsupported format or does not match its index entry.");
+  if (!isComparison(data) || data.cases.length !== data.summary.case_count) {
+    throw new Error("The selected comparison has an unsupported format.");
+  }
+  if (data.id !== entry.id || data.mode !== entry.mode || data.title !== entry.title
+    || data.summary.verdict !== entry.verdict || data.summary.delta !== entry.delta
+    || data.summary.case_count !== entry.case_count) {
+    throw new Error("The selected comparison does not match the run history. Retry to refresh both.");
   }
   return data;
 }

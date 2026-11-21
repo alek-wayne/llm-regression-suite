@@ -57,16 +57,19 @@ test("the explicit seeded run shows the recorded CMP-02 failure after Inspect is
   await expectGate(page, "Seeded regression", "FAIL");
   await expect(inspectLink(page)).toBeInViewport();
   await expectOverviewAtTop(page);
+  const caseRow = page.getByRole("row").filter({ hasText: "CMP-02" });
+  await expect(caseRow.getByRole("cell", { name: "1 of 1 scored trials passed" })).toBeVisible();
+  await expect(caseRow.getByRole("cell", { name: "0 of 1 scored trials passed" })).toBeVisible();
 
   await inspectLink(page).click();
 
   await expect(investigation(page)).toBeFocused();
   const evidence = page.getByRole("region", { name: "Case investigation" });
   await expect(evidence.getByText(question)).toBeVisible();
-  const baselineOutput = evidence.getByLabel("Baseline raw provider output");
+  const baselineOutput = evidence.getByRole("region", { name: "Baseline raw provider output" });
   await expect(baselineOutput).toContainText("cmp-mount");
   await expect(baselineOutput).not.toContainText("It also supports every other Plate C accessory.");
-  await expect(evidence.getByLabel("Candidate raw provider output"))
+  await expect(evidence.getByRole("region", { name: "Candidate raw provider output" }))
     .toContainText("It also supports every other Plate C accessory.");
   await expect(evidence.getByText("missing ['cmp-mount'], unexpected ['cmp-cart']")).toBeVisible();
   await expect(evidence.getByText(/Expected approved wording/)).toBeVisible();
@@ -95,6 +98,24 @@ test("a published legacy link offers the current example and preserves its case"
   await expect(page).toHaveURL(regressionLink);
   await expectGate(page, "Seeded regression", "FAIL");
   await expect(inspectLink(page)).toBeInViewport();
+  await expect(investigation(page)).toBeHidden();
+});
+
+test("a replaced seeded artifact link offers the current seeded example", async ({ page, request }) => {
+  const previousId = "fixture-9b506ae900ea3299e6d524d9";
+  const { comparisons } = await (await request.get("/data/index.json")).json();
+  const seeded = comparisons.find((comparison) => comparison.scenario === "regressed");
+  const artifact = await (await request.get(`/data/${seeded.artifact}`)).json();
+  const current = { ...seeded, id: "fixture-current", artifact: "fixture-current.json" };
+  await page.route("**/data/index.json", (route) => route.fulfill({ json: { comparisons: [current] } }));
+  await page.route(`**/data/${current.artifact}`, (route) => route.fulfill({ json: { ...artifact, id: current.id } }));
+  await page.goto(`/#comparison=${previousId}&case=CMP-02`);
+
+  await expect(page.getByRole("heading", { name: "Earlier demo comparison", level: 1 })).toBeVisible();
+  await page.getByRole("link", { name: "Open current seeded example" }).click();
+  await expect(page).toHaveURL(regressionLink);
+  await expectGate(page, "Seeded regression", "FAIL");
+  await expect(inspectLink(page)).toBeVisible();
   await expect(investigation(page)).toBeHidden();
 });
 
@@ -153,4 +174,97 @@ test("an unknown comparison offers a path back to the repaired overview", async 
   await page.getByRole("link", { name: "Open first comparison" }).click();
   await expectGate(page, "Repaired candidate", "PASS");
   await expect(investigation(page)).toBeHidden();
+});
+
+test("partial trial evidence distinguishes delivery errors from scored failures", async ({ page, request }) => {
+  const response = await request.get("/data/index.json");
+  const { comparisons } = await response.json();
+  const entry = comparisons.find((comparison) => comparison.scenario === "regressed");
+  const artifact = await (await request.get(`/data/${entry.artifact}`)).json();
+  const comparisonCase = artifact.cases.find((item) => item.id === "CMP-02");
+  const failedTrial = comparisonCase.candidate[0];
+  const deliveryError = "Provider delivery unavailable";
+  comparisonCase.baseline.push({ ...comparisonCase.baseline[0], index: 2 });
+  comparisonCase.candidate = [{
+    ...failedTrial,
+    status: "error",
+    error: deliveryError,
+    guardrail: "withheld_delivery",
+    text: "",
+    assertions: failedTrial.assertions.map(({ name }) => ({ name, passed: false, detail: deliveryError })),
+    input_tokens: null,
+    output_tokens: null,
+    latency_ms: null,
+    cost_usd: null,
+    stop_reason: null,
+  }, { ...failedTrial, index: 2 }];
+  artifact.cases = [comparisonCase];
+  artifact.trials_per_case = 2;
+  Object.assign(artifact.summary, {
+    verdict: "INCONCLUSIVE",
+    reasons: ["Candidate had 1 incomplete trial."],
+    case_count: 1,
+    candidate_accuracy: null,
+    delta: null,
+    ci95: null,
+  });
+  artifact.summary.arms.baseline.all_trials_passed_cases = 1;
+  artifact.summary.arms.candidate.all_trials_passed_cases = 0;
+  artifact.summary.arms.candidate.unknown_cost_trials = 1;
+
+  await page.route("**/data/index.json", (route) => route.fulfill({ json: {
+    comparisons: [{ ...entry, verdict: "INCONCLUSIVE", delta: null, case_count: 1 }],
+  } }));
+  await page.route(`**/data/${entry.artifact}`, (route) => route.fulfill({ json: artifact }));
+  await page.goto(regressionLink);
+
+  await expectGate(page, "Seeded regression", "INCONCLUSIVE");
+  await expect(page.getByText("Candidate trial results are incomplete.")).toBeVisible();
+  await expect(page.getByText("0/1 case passed every candidate trial.")).toHaveCount(0);
+  await expect(page.getByRole("row").filter({ hasText: "CMP-02" }).getByText("Incomplete")).toBeVisible();
+  await inspectLink(page).click();
+
+  const trialPicker = page.getByRole("combobox", { name: "Paired trial" });
+  const candidate = page.locator(".trial-panel").filter({ has: page.getByRole("heading", { name: "Candidate", exact: true }) });
+  await expect(trialPicker).toHaveValue("2");
+  await expect(candidate.getByText("0 of 1 scored trials passed · 1 error")).toBeVisible();
+  await expect(candidate.getByText("missing ['cmp-mount'], unexpected ['cmp-cart']")).toBeVisible();
+
+  await trialPicker.selectOption("1");
+  await expect(candidate.getByText("Trial error", { exact: true })).toBeVisible();
+  await expect(candidate.getByText(deliveryError, { exact: true })).toHaveCount(1);
+  await expect(candidate.getByText("Assertions were unavailable for this trial.")).toBeVisible();
+  await expect(candidate.getByText(/0 \/ \d+ passed/)).toHaveCount(0);
+});
+
+test("retry refreshes an inconsistent index and keeps keyboard focus in the comparison", async ({ page, request }) => {
+  const { comparisons } = await (await request.get("/data/index.json")).json();
+  const repaired = comparisons[0];
+  let indexRequests = 0;
+  await page.route("**/data/index.json", (route) => {
+    indexRequests += 1;
+    return route.fulfill({ json: { comparisons: indexRequests === 1
+      ? [{ ...repaired, verdict: "FAIL", delta: -0.2, case_count: repaired.case_count - 1 }]
+      : comparisons } });
+  });
+  await page.goto("/");
+
+  await expect(page.getByRole("heading", { name: "Could not open comparison", level: 1 })).toBeVisible();
+  await expect(page.getByText("The selected comparison does not match the run history. Retry to refresh both.")).toBeVisible();
+  await expect(page.getByRole("region", { name: "Release gate" })).toHaveCount(0);
+  await page.getByRole("button", { name: "Retry comparison" }).press("Enter");
+
+  await expectGate(page, "Repaired candidate", "PASS");
+  await expect(page.getByRole("main")).toBeFocused();
+  expect(indexRequests).toBe(2);
+});
+
+test("clearing filters returns keyboard focus to search", async ({ page }) => {
+  await page.goto("/");
+  const search = page.getByRole("searchbox", { name: "Search cases" });
+  await search.fill("CMP-02");
+  await page.getByRole("button", { name: "Clear filters" }).press("Enter");
+  await expect(search).toHaveValue("");
+  await expect(search).toBeFocused();
+  await expect(page.getByText("48 of 48 cases")).toBeVisible();
 });

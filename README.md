@@ -2,7 +2,7 @@
 
 A support assistant can give the right product code, cite the wrong manual, and promise a customer more than the policy allows. This Python evaluation harness tests those failures separately and gives GitHub Actions a release decision with the evidence behind it.
 
-[Open the investigation console](https://alekwayne.dev/llm-regression-suite/) · [Inspect the CI runs](https://github.com/alek-wayne/llm-regression-suite/actions/workflows/regression.yml)
+[Open the investigation console](https://alekwayne.dev/llm-regression-suite/) · [Inspect the CI runs](https://github.com/alek-wayne/llm-regression-suite/actions/workflows/regression.yml) · [Download the latest release evidence](https://github.com/alek-wayne/llm-regression-suite/releases/latest)
 
 ## A regression you can reproduce
 
@@ -27,7 +27,7 @@ uv run --locked python -m evalsuite demo
 uv run --locked python -m evalsuite replay artifacts/demo/repaired/comparison.json
 ```
 
-Each demo writes a self-contained JSON comparison and a Markdown report under `artifacts/demo/`. Replay reads that JSON, verifies its content identity, regrades every trial, reprices standard token usage, and recomputes the verdict. It works offline once dependencies are installed.
+Each demo writes a self-contained JSON comparison and a Markdown report under `artifacts/demo/`. Replay verifies the content ID, checks the recorded delivery and model, regrades every trial, reprices standard token usage, and recomputes the verdict. It works offline once dependencies are installed. The report records the evaluator hash and source revision so a later grading-policy change can be investigated against the original code.
 
 ```sh
 # Start the local console at http://127.0.0.1:8765
@@ -51,11 +51,13 @@ The public demonstration pull request changes the candidate recordings, then res
 | Decision and value | Exact disposition and policy code. Missing customer information calls for clarification. Missing or unresolved conflicting policy calls for abstention. |
 | Attribution | The full set of supporting passage IDs. Extra, missing, duplicate, and wrong-scope sources fail independently of the answer code. |
 | Customer wording | Exact approved text for the labeled outcome. This closed vocabulary makes invented promises mechanically detectable. A harmless paraphrase also fails this contract. |
-| Runtime guard | Validates response shape and checks cited IDs and approved wording against the retrieved passages. It has no access to the answer key. |
+| Runtime guard | Validates the response shape and cited passage IDs. Answers and clarifications must match wording approved for the exact revision of a cited passage. Abstentions use a fixed fallback. |
 | Latency | Per-arm p50 and p95 over delivered responses, using linear interpolation. Live wall time includes free token preflight and the Messages call. |
 | Cost and availability | Provider token counts and Decimal list-price accounting. Reports distinguish known spend from trials with unknown charges. Refusal or truncation fails quality. Transport failures make a comparison inconclusive. |
 
 A trial passes when the reply clears the runtime guard and every assertion. Strict accuracy averages trial success within each case, then averages cases equally. The console also shows the underlying repetitions. Baseline and candidate run in alternating order. The reported 95% interval uses 2,000 seeded paired bootstrap resamples of whole policy families. With 12 curated families and one synthetic trial per arm in the demo, that interval describes sensitivity to this corpus composition. Live reliability and production latency require separate measurements.
+
+For a policy revision, review the wording and register it under the passage ID, the SHA-256 of the complete UTF-8 source text, and the decision it authorizes. Keep previously reviewed revisions available for replay. A revised passage requires a new approval before its wording can be served. [Policy approvals](src/evalsuite/policy_approvals.json)
 
 ### Gate policy
 
@@ -72,7 +74,7 @@ The live cutoffs are initial engineering thresholds. Repeat baseline-against-bas
 
 Pull requests, pushes to main, and merge-queue runs exercise the keyless gate. On a pull request the approved baseline comes from its target revision. Frozen observations are bound to hashes of the exact model-visible request, including the system prompt, ordered passages, JSON schema, and model. A prompt edit invalidates its old evidence. A fresh fixture must be authored and reviewed for that request, or a separately authorized live run can measure it.
 
-GitHub Actions writes the verdict to its job summary and uploads `comparison.json` and `report.md`, including on a failed gate. Anyone with the downloaded artifact can replay it. Pull requests receive read-only repository permissions. A separately dispatched main-branch workflow accepts an Anthropic key from the `live-evaluation` environment. Hosting the console uses its own Pages workflow.
+GitHub Actions replays the saved comparison, checks that its Markdown matches the verified evidence, and publishes both files and a job summary, including on a failed gate. Pull requests receive read-only repository permissions. A separately dispatched main-branch workflow accepts an Anthropic key from the `live-evaluation` environment. Hosting the console uses its own Pages workflow.
 
 ## PostgreSQL and React
 
@@ -88,8 +90,8 @@ Docker Compose binds the demo database to loopback on port 5488. Override ports 
 docker compose up -d --wait db
 TEST_DATABASE_URL=postgresql://eval:eval@127.0.0.1:5488/evalsuite make check
 
-# Test the built console in desktop and mobile Chromium.
-npm exec --prefix web -- playwright install --only-shell chromium
+# Test the console in Chromium, Firefox, and WebKit on desktop and mobile profiles.
+npm exec --prefix web -- playwright install --only-shell chromium firefox webkit
 npm run test:navigation --prefix web
 ```
 

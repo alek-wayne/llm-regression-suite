@@ -31,10 +31,12 @@ function useResource<T, Key>(key: Key, load: (key: Key, signal: AbortSignal) => 
 
 const requestIndex = (_key: null, signal: AbortSignal) => loadIndex(signal);
 
-// These artifact IDs were published before scenario links were introduced.
+// Published artifacts remain discoverable when a new deployment replaces them.
 const earlierDemoScenarios = new Map<string, ComparisonEntry["scenario"]>([
   ["fixture-5a6d675f9c59e8a9f5dbacc8", "repaired"],
   ["fixture-bca00797df094798b99c2fa7", "regressed"],
+  ["fixture-1dbc8d2342a79bc692294da7", "repaired"],
+  ["fixture-9b506ae900ea3299e6d524d9", "regressed"],
 ]);
 
 type Selection = { comparison: string | null; caseId: string | null; inspect: boolean };
@@ -135,12 +137,12 @@ interface ComparisonViewProps {
   navigate: Navigate;
 }
 
-function ComparisonView(props: ComparisonViewProps) {
+function ComparisonView({ refreshHistory, ...props }: ComparisonViewProps & { refreshHistory: () => void }) {
   const { entry } = props;
-  const [resource, retry] = useResource(entry, loadComparison);
+  const [resource] = useResource(entry, loadComparison);
   if (resource.status === "loading") return <StatePanel title={entry.title} description="Loading comparison artifact…" loading />;
   if (resource.status === "error") {
-    return <StatePanel title="Could not open comparison" description={resource.message} action={<button type="button" className="action-button" onClick={retry}>Retry comparison</button>} />;
+    return <StatePanel title="Could not open comparison" description={resource.message} action={<button type="button" className="action-button" onClick={refreshHistory}>Retry comparison</button>} />;
   }
   return <LoadedComparison {...props} comparison={resource.data} />;
 }
@@ -168,6 +170,7 @@ function LoadedComparison({ comparison, entry, selection, navigate }: Comparison
       <header className="comparison-header">
         <div className="comparison-top"><span><Icon name="layers" /> Comparison</span><ModeBadge mode={comparison.mode} /></div>
         <h1>{comparison.title}</h1>
+        {requested && <a className="action-button case-inspect-action" href={getLink(requested.id)} onClick={openCase}>Inspect {requested.id}</a>}
         <div className="comparison-meta">
           <span className="run-id">{comparison.id}</span>
           <span>{comparison.summary.case_count} {comparison.summary.case_count === 1 ? "case" : "cases"}</span>
@@ -175,7 +178,6 @@ function LoadedComparison({ comparison, entry, selection, navigate }: Comparison
           {entry.scenario === "repaired" && <p>The candidate corrects the responses from the seeded regression and clears the release gate.</p>}
           {entry.scenario === "regressed" && <p>Deliberately flawed candidate responses test the release gate. Open a regressed case to see which checks failed.</p>}
         </div>
-        {requested && <a className="action-button case-inspect-action" href={getLink(requested.id)} onClick={openCase}>Inspect {requested.id}</a>}
         {selection.caseId && !requested && <p className="case-notice" role="status">Case <code>{selection.caseId}</code> is unavailable in this comparison.</p>}
       </header>
       <Overview comparison={comparison} />
@@ -194,6 +196,11 @@ export function App() {
     ? entries.find((entry) => entry.id === comparison) ?? entries.find((entry) => entry.scenario === comparison)
     : entries[0];
 
+  function refreshHistory() {
+    document.getElementById("workspace")?.focus({ preventScroll: true });
+    retry();
+  }
+
   function openComparison(event: MouseEvent<HTMLAnchorElement>) {
     if (!navigate(event)) return;
     const heading = document.querySelector("#workspace h1");
@@ -207,9 +214,9 @@ export function App() {
     const description = usesStaticArtifacts
       ? `${index.message} Generate the demo artifacts or verify the static data feed.`
       : index.message;
-    content = <StatePanel title="Could not load run history" description={description} action={<button type="button" className="action-button" onClick={retry}>Retry history</button>} />;
+    content = <StatePanel title="Could not load run history" description={description} action={<button type="button" className="action-button" onClick={refreshHistory}>Retry history</button>} />;
   } else if (!entries.length) {
-    content = <StatePanel title="No comparisons yet" description="The artifact source is reachable. A comparison will appear here after the evaluator records a run." action={<button type="button" className="action-button" onClick={retry}>Refresh history</button>} />;
+    content = <StatePanel title="No comparisons yet" description="The artifact source is reachable. A comparison will appear here after the evaluator records a run." action={<button type="button" className="action-button" onClick={refreshHistory}>Refresh history</button>} />;
   } else if (!active) {
     const earlierScenario = usesStaticArtifacts && comparison ? earlierDemoScenarios.get(comparison) : undefined;
     const replacement = earlierScenario ? entries.find((entry) => entry.scenario === earlierScenario) : undefined;
@@ -223,7 +230,7 @@ export function App() {
         action={<a className="action-button" href={hashFor(entries[0])} onClick={openComparison}>Open first comparison</a>} />
     );
   } else {
-    content = <ComparisonView key={active.id} entry={active} selection={selection} navigate={navigate} />;
+    content = <ComparisonView key={active.id} entry={active} selection={selection} navigate={navigate} refreshHistory={refreshHistory} />;
   }
 
   return (
