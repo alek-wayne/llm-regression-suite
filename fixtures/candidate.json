@@ -25,10 +25,10 @@
   ],
   "RET-04": [
     {
-      "text": "{\"decision\":\"answer\",\"value\":\"ORIGINAL_PAYMENT\",\"evidence_ids\":[\"ret-payment\"],\"customer_response\":\"An eligible return is refunded to the original payment method.\"}",
-      "input_tokens": 472,
-      "output_tokens": 45,
-      "latency_ms": 638
+      "text": "{\"decision\": \"answer\", \"value\": \"GIFT_STORE_CREDIT\", \"customer_response\": \"A gift receipt return can be issued as store credit.\", \"evidence_ids\": [\"ret-gift\"]}",
+      "input_tokens": 634,
+      "output_tokens": 42,
+      "latency_ms": 1283
     }
   ],
   "SHP-01": [
@@ -49,10 +49,10 @@
   ],
   "SHP-03": [
     {
-      "text": "{\"decision\":\"answer\",\"value\":\"GUARANTEED_10_AM\",\"evidence_ids\":[\"shp-estimate\"],\"customer_response\":\"Express delivery is guaranteed by 10 a.m.\"}",
-      "input_tokens": 545,
+      "text": "{\"decision\": \"abstain\", \"value\": null, \"customer_response\": \"I can't confirm that from the available policy.\", \"evidence_ids\": []}",
+      "input_tokens": 606,
       "output_tokens": 36,
-      "latency_ms": 869
+      "latency_ms": 1835
     }
   ],
   "SHP-04": [
@@ -73,26 +73,26 @@
   ],
   "BIL-02": [
     {
-      "text": "{\"decision\":\"answer\",\"value\":\"EMAIL_BILLING_CONTACT\",\"evidence_ids\":[\"bil-invoice\"],\"customer_response\":\"The invoice can be emailed to the workspace billing contact.\"}",
-      "input_tokens": 577,
-      "output_tokens": 47,
-      "latency_ms": 1047
+      "text": "{\"decision\": \"answer\", \"value\": \"EMAIL_BILLING_CONTACT\", \"customer_response\": \"The invoice can be emailed to the workspace billing contact.\", \"evidence_ids\": [\"bil-invoice\", \"bil-roles\"]}",
+      "input_tokens": 560,
+      "output_tokens": 51,
+      "latency_ms": 1030
     }
   ],
   "BIL-03": [
     {
-      "text": "{\"decision\":\"answer\",\"value\":\"CREDIT_45_DAYS\",\"evidence_ids\":[\"bil-spring-45\"],\"customer_response\":\"Your Spring Courtesy Credit expires 45 days after issue.\"}",
-      "input_tokens": 648,
-      "output_tokens": 42,
-      "latency_ms": 1309
+      "text": "{\"decision\": \"abstain\", \"value\": null, \"customer_response\": \"I can't confirm that from the available policy.\", \"evidence_ids\": [\"bil-spring-45\", \"bil-spring-30\"]}",
+      "input_tokens": 638,
+      "output_tokens": 41,
+      "latency_ms": 1217
     }
   ],
   "BIL-04": [
     {
-      "text": "{\"decision\":\"answer\",\"value\":\"DUPLICATE_REVIEW\",\"evidence_ids\":[\"bil-capture\"],\"customer_response\":\"Two settled charges for one order can be reviewed. We'll refund the second charge today.\"}",
-      "input_tokens": 522,
-      "output_tokens": 48,
-      "latency_ms": 1408
+      "text": "{\"decision\": \"answer\", \"value\": \"DUPLICATE_REVIEW\", \"customer_response\": \"Two settled charges for one order can be reviewed.\", \"evidence_ids\": [\"bil-capture\"]}",
+      "input_tokens": 480,
+      "output_tokens": 44,
+      "latency_ms": 1448
     }
   ],
   "SUB-01": [
@@ -169,10 +169,10 @@
   ],
   "REP-02": [
     {
-      "text": "{\"decision\":\"clarify\",\"value\":null,\"evidence_ids\":[\"rep-dock\"],\"customer_response\":\"Does the label on your Dock One say Revision A or Revision B?\"",
-      "input_tokens": 541,
-      "output_tokens": 42,
-      "latency_ms": 1662
+      "text": "{\"decision\": \"clarify\", \"value\": null, \"customer_response\": \"Does the label on your Dock One say Revision A or Revision B?\", \"evidence_ids\": [\"rep-dock\"]}",
+      "input_tokens": 660,
+      "output_tokens": 41,
+      "latency_ms": 688
     }
   ],
   "REP-03": [
@@ -297,10 +297,10 @@
   ],
   "CMP-02": [
     {
-      "text": "{\"decision\":\"answer\",\"value\":\"PLATE_C_SUPPORTED\",\"evidence_ids\":[\"cmp-cart\"],\"customer_response\":\"Your Desk Display 18 supports the Plate C tabletop mount. It also supports every other Plate C accessory.\"}",
-      "input_tokens": 620,
-      "output_tokens": 56,
-      "latency_ms": 1861
+      "text": "{\"decision\": \"answer\", \"value\": \"PLATE_C_SUPPORTED\", \"customer_response\": \"Your Desk Display 18 supports the Plate C tabletop mount.\", \"evidence_ids\": [\"cmp-mount\"]}",
+      "input_tokens": 574,
+      "output_tokens": 42,
+      "latency_ms": 1092
     }
   ],
   "CMP-03": [
@@ -377,10 +377,10 @@
   ],
   "PCK-04": [
     {
-      "text": "{\"decision\":\"answer\",\"value\":\"PICKUP_STILL_HELD\",\"evidence_ids\":[\"pck-hold\"],\"customer_response\":\"Your pickup order is still being held.\"}",
-      "input_tokens": 681,
-      "output_tokens": 39,
-      "latency_ms": 668
+      "text": "{\"decision\": \"answer\", \"value\": \"COLD_HOLD_ENDED\", \"customer_response\": \"The pickup window for your refrigerated groceries has ended.\", \"evidence_ids\": [\"pck-cold\"]}",
+      "input_tokens": 513,
+      "output_tokens": 46,
+      "latency_ms": 1697
     }
   ]
 }
