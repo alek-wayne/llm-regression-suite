@@ -205,3 +205,12 @@ def test_replay_prices_observed_tokens_using_embedded_rate_card():
     document["id"] = artifact_id(document)
     with pytest.raises(ValueError, match="differs from token usage"):
         verify(Comparison.model_validate(document))
+
+
+def test_source_archive_can_run_without_git(project, monkeypatch):
+    monkeypatch.setenv("PATH", "")
+    artifact = run_comparison(project, case_ids=["CMP-02"])
+    assert artifact.provenance["candidate_revision"] is None
+    assert artifact.provenance["candidate_inputs_dirty"] is None
+    assert artifact.summary.verdict == "PASS"
+    verify(artifact)
