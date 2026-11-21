@@ -1,0 +1,55 @@
+name: Live prompt evaluation
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: live-prompt-evaluation
+  cancel-in-progress: false
+
+jobs:
+  live:
+    name: Live regression check
+    if: github.ref == 'refs/heads/main'
+    environment: live-evaluation
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out main revision
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: astral-sh/setup-uv@94527f2e458b27549849d47d273a16bec83a01e9 # v7
+        with:
+          version: "0.13.8"
+          python-version: "3.13"
+      - name: Install Python dependencies
+        run: uv sync --locked
+      - name: Run the bounded live comparison
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: >-
+          uv run --locked python -m evalsuite compare --mode live
+          --trials 1 --budget-usd 0.10 --out artifacts/live
+      - name: Show live report
+        if: always()
+        shell: bash
+        run: |
+          if [[ -f artifacts/live/report.md ]]; then
+            cat artifacts/live/report.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'The live comparison did not produce a report. See the evaluation log.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Upload live evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: live-evidence
+          path: |
+            artifacts/live/comparison.json
+            artifacts/live/report.md
+          if-no-files-found: error
