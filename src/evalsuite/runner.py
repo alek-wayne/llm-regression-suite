@@ -45,17 +45,18 @@ def load_json(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def source_revision(root: Path) -> str | None:
-    result = subprocess.run(
-        ["git", "-C", str(root), "rev-parse", "--verify", "HEAD"],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    return result.stdout.strip() if result.returncode == 0 else None
-
-
-def has_input_changes(root: Path) -> bool:
+def source_state(root: Path) -> tuple[str | None, bool | None]:
+    try:
+        revision = subprocess.run(
+            ["git", "-C", str(root), "rev-parse", "--verify", "HEAD"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except FileNotFoundError:
+        return None, None
+    if revision.returncode:
+        return None, None
     status = subprocess.run(
         [
             "git",
@@ -74,7 +75,8 @@ def has_input_changes(root: Path) -> bool:
         text=True,
         check=False,
     )
-    return bool(status.stdout.strip()) or status.returncode != 0
+    dirty = bool(status.stdout.strip()) if status.returncode == 0 else None
+    return revision.stdout.strip(), dirty
 
 
 def failed_observation(reason: str, *, known_cost: str | None = None) -> Observation:
@@ -282,13 +284,17 @@ def run_comparison(
         else:
             title = "Candidate comparison"
     module_dir = Path(__file__).parent
+    candidate_state = source_state(root)
+    baseline_state = (
+        candidate_state if root.resolve() == reference.resolve() else source_state(reference)
+    )
     provenance = {
         "model": MODEL,
         "sdk_version": version("anthropic"),
-        "baseline_revision": source_revision(reference),
-        "candidate_revision": source_revision(root),
-        "baseline_inputs_dirty": has_input_changes(reference),
-        "candidate_inputs_dirty": has_input_changes(root),
+        "baseline_revision": baseline_state[0],
+        "candidate_revision": candidate_state[0],
+        "baseline_inputs_dirty": baseline_state[1],
+        "candidate_inputs_dirty": candidate_state[1],
         "instrument_sha256": digest(
             {
                 name: sha256((module_dir / name).read_bytes()).hexdigest()
